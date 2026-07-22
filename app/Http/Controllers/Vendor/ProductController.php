@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -19,7 +22,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = $this->vendorShop()->products()->latest()->get();
+        $products = $this->vendorShop()->products()->with('category')->latest()->get();
 
         return Inertia::render('Vendor/Products/Index', [
             'products' => $products,
@@ -41,7 +44,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|max:4096',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,avif,bmp,tiff,heic,heif|max:10240',
         ]);
 
         if ($request->hasFile('image')) {
@@ -81,7 +84,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|max:4096',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,avif,bmp,tiff,heic,heif|max:10240',
         ]);
 
         if ($request->hasFile('image')) {
@@ -102,8 +105,24 @@ class ProductController extends Controller
             abort(403);
         }
 
+        // 1. Remove from all shopping carts
+        CartItem::where('product_id', $product->id)->delete();
+
+        // 2. Delete reviews on this product
+        Review::where('product_id', $product->id)->delete();
+
+        // 3. Delete any product variants
+        $product->variants()->delete();
+
+        // 4. Remove stored image (skip placeholder/external URLs)
+        if ($product->image && !str_starts_with($product->image, 'http')) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        // sub_order_items.product_id is now nullable (nullOnDelete)
+        // so those rows are automatically nullified by the DB when we delete.
         $product->delete();
 
-        return back()->with('success', 'Product deleted.');
+        return back()->with('success', 'Product deleted successfully.');
     }
 }

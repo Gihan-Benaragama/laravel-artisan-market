@@ -1,138 +1,323 @@
-import React, { useEffect, useState } from "react";
-import { Head, Link, usePage } from "@inertiajs/react";
-import { Search, ArrowRight } from "lucide-react";
+import React, { useState } from "react";
+import { Head, Link } from "@inertiajs/react";
+import { ArrowRight, Sparkles, ShieldCheck, Heart, Eye, Award } from "lucide-react";
+import { motion } from "framer-motion";
 import Navbar from "../Components/Navbar";
-
-const COLORS = {
-    bg: "#1C1815",
-    bgLight: "#F2EAE0",
-    sienna: "#B5563C",
-    sage: "#7C8471",
-    brass: "#A88A5B",
-    ink: "#0F0D0B",
-};
 
 function ThreadDivider() {
     return (
-        <div className="w-full flex items-center justify-center" style={{ padding: "2.5rem 0" }}>
-            <svg width="100%" height="24" viewBox="0 0 1200 24" preserveAspectRatio="none" style={{ maxWidth: 1100 }}>
-                <line x1="0" y1="12" x2="1200" y2="12" stroke={COLORS.sienna} strokeWidth="1.5" strokeDasharray="10 10" strokeLinecap="round" />
-                <circle cx="600" cy="12" r="4" fill={COLORS.sienna} />
-            </svg>
+        <div className="w-full flex items-center justify-center py-12">
+            <div className="w-full max-w-5xl flex items-center gap-4 px-6">
+                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C86D51]/30 to-[#C86D51]/60" />
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="w-8 h-8 rounded-full border border-[#C86D51]/40 flex items-center justify-center text-[#C86D51]"
+                >
+                    <Sparkles size={14} />
+                </motion.div>
+                <div className="h-[1px] flex-1 bg-gradient-to-r from-[#C86D51]/60 via-[#C86D51]/30 to-transparent" />
+            </div>
         </div>
     );
 }
 
 export default function ArtisanMarketplaceHome({ makers = [], products = [] }) {
-    const [heroLoaded, setHeroLoaded] = useState(false);
-    useEffect(() => {
-        const t = setTimeout(() => setHeroLoaded(true), 100);
-        return () => clearTimeout(t);
-    }, []);
+    const [selectedCategory, setSelectedCategory] = useState("all");
+
+    const categories = ["all", "Ceramics", "Textiles", "Woodwork", "Glassware"];
+
+    const filteredProducts = selectedCategory === "all"
+        ? products
+        : products.filter(p => p.category?.toLowerCase() === selectedCategory.toLowerCase());
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.12,
+                delayChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 30, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+        }
+    };
 
     return (
-        <div style={{ fontFamily: "'Inter', sans-serif", background: COLORS.bgLight, color: COLORS.ink }}>
-            <Head title="Aterlier — Handmade, sold direct" />
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap');
-        .voice { font-family: 'Fraunces', serif; }
-        @keyframes riseIn { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
-        .reveal { animation: riseIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
-        .card-hover { transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
-        .card-hover:hover { transform: translateY(-6px); }
-      `}</style>
+        <div className="min-h-screen bg-[#F8F5F0] text-[#12100E] font-sans">
+            <Head title="Atelier — Independent Artisan Marketplace" />
 
-            {/* NAV */}
+            {/* NAVIGATION HEADER */}
             <Navbar />
 
-            {/* HERO */}
-            <div
-                className="relative w-full flex items-center"
-                style={{
-                    height: "86vh",
-                    minHeight: 560,
-                    background: `linear-gradient(180deg, rgba(15,13,11,0.15) 0%, rgba(15,13,11,0.75) 100%), url('https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?q=80&w=1800&auto=format&fit=crop') center/cover no-repeat`,
-                }}
-            >
-                <div style={{ padding: "0 3rem", maxWidth: 640, color: COLORS.bgLight, opacity: heroLoaded ? 1 : 0, transform: heroLoaded ? "translateY(0)" : "translateY(24px)", transition: "opacity 1.1s cubic-bezier(0.22,1,0.36,1), transform 1.1s cubic-bezier(0.22,1,0.36,1)" }}>
-                    <p style={{ fontSize: 13, letterSpacing: "0.18em", textTransform: "uppercase", color: COLORS.brass, marginBottom: 18 }}>
-                        Made by hand, not by machine
-                    </p>
-                    <h1 className="voice" style={{ fontSize: 56, lineHeight: 1.08, fontWeight: 500, marginBottom: 22 }}>
-                        Every object carries the maker's hand.
-                    </h1>
-                    <p style={{ fontSize: 16, lineHeight: 1.7, color: "rgba(242,234,224,0.85)", marginBottom: 32, maxWidth: 480 }}>
-                        A marketplace for independent artisans — ceramics, textiles, and woodwork, sold directly from the studios that make them.
-                    </p>
-                    <Link href="/shop" className="flex items-center" style={{ gap: 10, background: COLORS.sienna, color: COLORS.bgLight, border: "none", padding: "13px 26px", fontSize: 14, fontWeight: 500, borderRadius: 2, textDecoration: "none", width: "fit-content" }}>
-                        Explore the studios <ArrowRight size={16} />
-                    </Link>
+            {/* HERO SECTION */}
+            <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#12100E] text-white px-6 md:px-12 py-20">
+                {/* Hero Background Image with Gradient Overlay */}
+                <div
+                    className="absolute inset-0 z-0 bg-cover bg-center scale-105 transition-transform duration-1000 opacity-40"
+                    style={{
+                        backgroundImage: `url('https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?q=80&w=1800&auto=format&fit=crop')`,
+                    }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#12100E] via-[#12100E]/70 to-transparent z-0" />
+
+                {/* Hero Content Box */}
+                <div className="relative z-10 max-w-4xl text-center flex flex-col items-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-[#D4AF37]/30 text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] mb-6 shadow-xl"
+                    >
+                        <Award size={14} />
+                        100% Studio Direct Artisans
+                    </motion.div>
+
+                    <motion.h1
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.9, delay: 0.2 }}
+                        className="font-voice text-4xl sm:text-6xl md:text-7xl font-normal leading-[1.1] mb-6 tracking-tight"
+                    >
+                        Every object carries the <span className="shimmer-text font-serif-luxury font-bold italic">maker's soul.</span>
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.9, delay: 0.4 }}
+                        className="text-base sm:text-lg text-stone-300 max-w-2xl mb-10 leading-relaxed font-light"
+                    >
+                        An exclusive marketplace for independent craftspeople — pottery, hand-woven textiles, and carved woodwork, shipped directly from artisan studios worldwide.
+                    </motion.p>
+
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.8, delay: 0.6 }}
+                        className="flex flex-wrap items-center justify-center gap-4"
+                    >
+                        <Link href="/shop">
+                            <motion.button
+                                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px -5px rgba(200, 109, 81, 0.5)" }}
+                                whileTap={{ scale: 0.95 }}
+                                className="px-8 py-4 bg-gradient-to-r from-[#C86D51] to-[#B25539] text-white font-medium text-sm rounded-full flex items-center gap-3 shadow-lg transition-all"
+                            >
+                                Explore All Studios
+                                <ArrowRight size={17} />
+                            </motion.button>
+                        </Link>
+
+                        <div className="flex items-center gap-6 px-6 py-3 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-xs text-stone-300">
+                            <span className="flex items-center gap-2">
+                                <ShieldCheck size={16} className="text-[#D4AF37]" /> Authenticity Guaranteed
+                            </span>
+                        </div>
+                    </motion.div>
                 </div>
-            </div>
+            </section>
 
             <ThreadDivider />
 
-            {/* FEATURED MAKERS */}
-            <div style={{ padding: "1rem 3rem 3rem" }}>
-                <div className="flex items-end justify-between" style={{ marginBottom: 36 }}>
+            {/* FEATURED MAKERS / STUDIOS */}
+            <section className="px-6 md:px-12 py-12 max-w-7xl mx-auto">
+                <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-4">
                     <div>
-                        <p style={{ fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase", color: COLORS.sage, marginBottom: 8 }}>Featured studios</p>
-                        <h2 className="voice" style={{ fontSize: 32, fontWeight: 500 }}>Meet the makers</h2>
+                        <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#C86D51] block mb-2">
+                            Featured Master Craftsmen
+                        </span>
+                        <h2 className="font-voice text-3xl sm:text-4xl text-[#12100E] font-medium">
+                            Meet the Independent Studios
+                        </h2>
                     </div>
-                    <Link href="/shop" style={{ fontSize: 14, color: COLORS.sienna, textDecoration: "none" }}>View all studios →</Link>
+
+                    <Link
+                        href="/shop"
+                        className="group flex items-center gap-2 text-sm font-semibold text-[#C86D51] hover:text-[#9E452E] transition-colors"
+                    >
+                        View all studios
+                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </Link>
                 </div>
 
                 {makers.length === 0 ? (
-                    <p style={{ color: COLORS.sage, fontSize: 14 }}>No approved studios yet — check back soon.</p>
-                ) : (
-                    <div className="grid grid-cols-3 reveal" style={{ gap: 24 }}>
-                        {makers.map((m) => (
-                            <div key={m.id} className="card-hover" style={{ background: "#fff", borderRadius: 4, overflow: "hidden", border: "1px solid rgba(15,13,11,0.08)" }}>
-                                <div style={{ height: 180, background: `linear-gradient(160deg, ${COLORS.sage}55, ${COLORS.brass}55)` }} />
-                                <div style={{ padding: "18px 20px" }}>
-                                    <h3 className="voice" style={{ fontSize: 19, fontWeight: 500, marginBottom: 4 }}>{m.shop?.name ?? "Unnamed Studio"}</h3>
-                                    <p style={{ fontSize: 13, color: COLORS.sage, marginBottom: 10 }}>{m.shop?.description ?? ""}</p>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="p-12 text-center bg-white rounded-3xl border border-stone-200 shadow-sm text-stone-500 font-light">
+                        No studio profiles available at this moment. Check back soon.
                     </div>
+                ) : (
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-8"
+                    >
+                        {makers.slice(0, 3).map((m) => (
+                            <motion.div
+                                key={m.id}
+                                variants={itemVariants}
+                                whileHover={{ y: -10 }}
+                                className="group bg-white rounded-2xl overflow-hidden border border-stone-200/80 shadow-sm hover:shadow-2xl transition-all duration-500"
+                            >
+                                <div className="h-48 overflow-hidden relative bg-stone-100">
+                                    {m.shop?.banner ? (
+                                        <img
+                                            src={m.shop.banner}
+                                            alt={m.shop.name}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-[#7C8471]/20 to-[#C86D51]/20 flex items-center justify-center text-stone-400">
+                                            <Sparkles size={32} />
+                                        </div>
+                                    )}
+                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-[#12100E] tracking-wider uppercase shadow-md">
+                                        Verified Studio
+                                    </div>
+                                </div>
+
+                                <div className="p-6">
+                                    <h3 className="font-voice text-xl font-medium text-[#12100E] mb-2 group-hover:text-[#C86D51] transition-colors">
+                                        {m.shop?.name ?? "Unnamed Studio"}
+                                    </h3>
+                                    <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed mb-4">
+                                        {m.shop?.description || "Dedicated to handcrafted perfection with traditional techniques."}
+                                    </p>
+                                    <Link
+                                        href="/shop"
+                                        className="inline-flex items-center text-xs font-semibold text-[#12100E] group-hover:text-[#C86D51] gap-1"
+                                    >
+                                        Visit Studio <ArrowRight size={13} />
+                                    </Link>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
                 )}
-            </div>
+            </section>
 
             <ThreadDivider />
 
-            {/* PRODUCT GRID */}
-            <div style={{ padding: "1rem 3rem 5rem" }}>
-                <div style={{ marginBottom: 36 }}>
-                    <p style={{ fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase", color: COLORS.sage, marginBottom: 8 }}>New this week</p>
-                    <h2 className="voice" style={{ fontSize: 32, fontWeight: 500 }}>Fresh from the studios</h2>
-                </div>
+            {/* CURATED PRODUCTS GRID */}
+            <section className="px-6 md:px-12 py-12 max-w-7xl mx-auto pb-24">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-6">
+                    <div>
+                        <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#C86D51] block mb-2">
+                            Fresh From The Bench
+                        </span>
+                        <h2 className="font-voice text-3xl sm:text-4xl text-[#12100E] font-medium">
+                            Curated Masterpieces
+                        </h2>
+                    </div>
 
-                {products.length === 0 ? (
-                    <p style={{ color: COLORS.sage, fontSize: 14 }}>No products yet.</p>
-                ) : (
-                    <div className="grid grid-cols-3 reveal" style={{ gap: 24 }}>
-                        {products.map((p) => (
-                            <Link href={`/shop/${p.slug}`} key={p.id} className="card-hover" style={{ textDecoration: "none", color: COLORS.ink }}>
-                                <div style={{ height: 220, borderRadius: 4, marginBottom: 12, overflow: "hidden", background: `linear-gradient(200deg, ${COLORS.sienna}22, ${COLORS.sage}33)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    {p.image ? <img src={`/storage/${p.image}`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-                                </div>
-                                <p style={{ fontSize: 14.5, fontWeight: 500, marginBottom: 2 }}>{p.name}</p>
-                                <p style={{ fontSize: 12.5, color: COLORS.sage, marginBottom: 4 }}>{p.shop?.name}</p>
-                                <p style={{ fontSize: 14, color: COLORS.sienna, fontWeight: 500 }}>${Number(p.price).toFixed(2)}</p>
-                            </Link>
+                    {/* Category Filter Pills */}
+                    <div className="flex flex-wrap gap-2">
+                        {categories.map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-4 py-2 text-xs font-medium rounded-full capitalize transition-all duration-300 ${
+                                    selectedCategory === cat
+                                        ? "bg-[#12100E] text-white shadow-md scale-105"
+                                        : "bg-white text-stone-600 hover:bg-stone-200/60 border border-stone-200"
+                                }`}
+                            >
+                                {cat}
+                            </button>
                         ))}
                     </div>
-                )}
-            </div>
-
-            {/* FOOTER */}
-            <div style={{ background: COLORS.bg, color: "rgba(242,234,224,0.65)", padding: "2.5rem 3rem", fontSize: 13 }}>
-                <div className="flex items-center justify-between">
-                    <span className="voice" style={{ fontSize: 17, color: COLORS.bgLight }}>Aterlier</span>
-                    <span>Handmade, sold direct. No factories, no middlemen.</span>
                 </div>
-            </div>
+
+                {filteredProducts.length === 0 ? (
+                    <div className="p-16 text-center bg-white rounded-3xl border border-stone-200 shadow-sm text-stone-500 font-light">
+                        No products available in this category yet.
+                    </div>
+                ) : (
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-50px" }}
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+                    >
+                        {filteredProducts.map((p) => (
+                            <motion.div
+                                key={p.id}
+                                variants={itemVariants}
+                                className="group relative bg-white rounded-2xl overflow-hidden border border-stone-200/80 shadow-sm hover:shadow-xl transition-all duration-500"
+                            >
+                                <Link href={`/shop/${p.slug}`}>
+                                    <div className="h-72 overflow-hidden relative bg-stone-100 flex items-center justify-center">
+                                        {p.image ? (
+                                            <img
+                                                src={p.image.startsWith('http') ? p.image : `/storage/${p.image}`}
+                                                alt={p.name}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            />
+                                        ) : (
+                                            <Sparkles size={36} className="text-stone-300" />
+                                        )}
+
+                                        {/* Hover Overlay */}
+                                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+                                            <span className="p-3 bg-white/90 text-[#12100E] rounded-full shadow-lg hover:scale-110 transition-transform">
+                                                <Eye size={18} />
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-6">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-[11px] font-semibold text-[#C86D51] uppercase tracking-wider">
+                                                {p.shop?.name || "Artisan Studio"}
+                                            </span>
+                                            <span className="text-base font-bold text-[#12100E]">
+                                                ${Number(p.price).toFixed(2)}
+                                            </span>
+                                        </div>
+
+                                        <h3 className="font-voice text-lg text-[#12100E] font-medium group-hover:text-[#C86D51] transition-colors truncate">
+                                            {p.name}
+                                        </h3>
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                )}
+            </section>
+
+            {/* LUXURY FOOTER */}
+            <footer className="bg-[#12100E] text-stone-400 py-16 px-6 md:px-12 border-t border-white/10">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="flex flex-col items-center md:items-start">
+                        <span className="font-serif-luxury text-2xl font-bold text-white tracking-wider mb-2">
+                            ATELIER
+                        </span>
+                        <p className="text-xs text-stone-500 max-w-sm text-center md:text-left">
+                            Supporting independent craftsmen directly. Zero mass manufacturing, 100% studio authenticity.
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-8 text-xs font-medium">
+                        <Link href="/shop" className="hover:text-white transition-colors">Shop</Link>
+                        <Link href="/login" className="hover:text-white transition-colors">Artisan Login</Link>
+                        <Link href="/register" className="hover:text-white transition-colors">Become a Seller</Link>
+                    </div>
+
+                    <div className="text-xs text-stone-600">
+                        &copy; {new Date().getFullYear()} Atelier Artisan Marketplace. All rights reserved.
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

@@ -42,6 +42,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'flash' => [
+                'success' => session('success'),
+                'error'   => session('error'),
+            ],
             'cart' => $cart ? [
                 'items' => $cart->items->map(fn($item) => [
                     'id'       => $item->id,

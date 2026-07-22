@@ -1,20 +1,13 @@
 import React, { useState } from "react";
 import { Link, router, useForm } from "@inertiajs/react";
-import { Star, ChevronLeft } from "lucide-react";
+import { Star, ChevronLeft, ShoppingBag, Plus, Minus, ShieldCheck, Truck, Sparkles, CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
 import Navbar from "../../Components/Navbar";
 
-const COLORS = {
-    bg: "#1C1815",
-    bgLight: "#F2EAE0",
-    sienna: "#B5563C",
-    sage: "#7C8471",
-    brass: "#A88A5B",
-    ink: "#0F0D0B",
-};
-
-export default function ShopShow({ product, related, canReview, alreadyReviewed }) {
+export default function ShopShow({ product, related = [], canReview, alreadyReviewed }) {
     const [qty, setQty] = useState(1);
     const [adding, setAdding] = useState(false);
+    const [addedSuccess, setAddedSuccess] = useState(false);
 
     const addToCart = () => {
         setAdding(true);
@@ -23,6 +16,10 @@ export default function ShopShow({ product, related, canReview, alreadyReviewed 
             { product_id: product.id, quantity: qty },
             {
                 preserveScroll: true,
+                onSuccess: () => {
+                    setAddedSuccess(true);
+                    setTimeout(() => setAddedSuccess(false), 2500);
+                },
                 onFinish: () => setAdding(false),
             }
         );
@@ -34,178 +31,177 @@ export default function ShopShow({ product, related, canReview, alreadyReviewed 
             : null;
 
     return (
-        <div style={{ fontFamily: "'Inter', sans-serif", background: COLORS.bgLight, color: COLORS.ink, minHeight: "100vh" }}>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap');
-        .voice { font-family: 'Fraunces', serif; }
-        @keyframes riseIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .reveal { animation: riseIn 0.7s cubic-bezier(0.22,1,0.36,1) both; }
-        .card-hover { transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); }
-        .card-hover:hover { transform: translateY(-5px); }
-        .btn-primary { transition: opacity 0.25s ease; }
-        .btn-primary:hover { opacity: 0.88; }
-      `}</style>
+        <div className="min-h-screen bg-[#F8F5F0] text-[#12100E] font-sans pb-24">
+            <Navbar />
 
-            {/* NAV */}
-            <nav className="w-full flex items-center justify-between" style={{ padding: "1.25rem 3rem", background: COLORS.bg, color: COLORS.bgLight }}>
-                <Link href="/" className="voice" style={{ fontSize: 22, fontWeight: 500, textDecoration: "none", color: COLORS.bgLight }}>
-                    Aterlier
-                </Link>
-                <div className="flex items-center" style={{ gap: 32, fontSize: 14 }}>
-                    <Link href="/shop" style={{ opacity: 0.85, color: COLORS.bgLight, textDecoration: "none" }}>Shop</Link>
-                    <span style={{ opacity: 0.85, cursor: "pointer" }}>Makers</span>
-                    <Link href="/cart">
-                        <ShoppingBag size={17} strokeWidth={1.5} style={{ color: COLORS.bgLight }} />
-                    </Link>
-                </div>
-            </nav>
-
-            <div style={{ padding: "2rem 3rem 0" }}>
-                <Link href="/shop" className="flex items-center" style={{ gap: 6, fontSize: 13, color: COLORS.sage, textDecoration: "none", width: "fit-content" }}>
-                    <ChevronLeft size={15} /> Back to shop
+            {/* BREADCRUMB BACK BUTTON */}
+            <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8">
+                <Link
+                    href="/shop"
+                    className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500 hover:text-[#C86D51] transition-colors"
+                >
+                    <ChevronLeft size={16} /> Back to Catalog
                 </Link>
             </div>
 
-            {/* PRODUCT MAIN */}
-            <div className="reveal grid grid-cols-2" style={{ gap: 56, padding: "2rem 3rem 4rem" }}>
-                <div
-                    style={{
-                        height: 480,
-                        borderRadius: 4,
-                        background: `linear-gradient(200deg, ${COLORS.sienna}22, ${COLORS.sage}33)`,
-                        overflow: "hidden",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
+            {/* PRODUCT MAIN CONTAINER */}
+            <div className="max-w-7xl mx-auto px-6 md:px-12 py-8 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+                
+                {/* IMAGE DISPLAY */}
+                <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="relative bg-white rounded-3xl overflow-hidden border border-stone-200 shadow-lg h-[460px] sm:h-[560px] flex items-center justify-center"
                 >
                     {product.image ? (
-                        <img src={`/storage/${product.image}`} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img
+                            src={product.image.startsWith('http') ? product.image : `/storage/${product.image}`}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                        />
                     ) : (
-                        <ShoppingBag size={48} style={{ color: COLORS.sage, opacity: 0.5 }} />
+                        <div className="flex flex-col items-center gap-3 text-stone-300">
+                            <ShoppingBag size={56} />
+                            <span className="text-xs uppercase tracking-widest text-stone-400">Handcrafted Piece</span>
+                        </div>
                     )}
-                </div>
+                    <div className="absolute top-6 left-6 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-[11px] font-bold text-[#12100E] uppercase tracking-widest shadow-md">
+                        Authentic Studio Work
+                    </div>
+                </motion.div>
 
-                <div style={{ paddingTop: 8 }}>
-                    <Link
-                        href={`/vendor/${product.shop?.vendor_id ?? ""}`}
-                        style={{ fontSize: 13, color: COLORS.sienna, textDecoration: "none", letterSpacing: "0.04em", textTransform: "uppercase" }}
-                    >
-                        {product.shop?.name ?? "Unnamed Studio"}
-                    </Link>
+                {/* PRODUCT DETAILS */}
+                <motion.div
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.7, delay: 0.1 }}
+                    className="flex flex-col"
+                >
+                    {/* Studio Tag */}
+                    <div className="mb-3">
+                        <Link
+                            href={`/shop`}
+                            className="inline-block text-xs font-bold uppercase tracking-[0.2em] text-[#C86D51] hover:underline"
+                        >
+                            {product.shop?.name ?? "Artisan Studio"}
+                        </Link>
+                    </div>
 
-                    <h1 className="voice" style={{ fontSize: 36, fontWeight: 500, margin: "12px 0 16px", lineHeight: 1.15 }}>
+                    <h1 className="font-voice text-3xl sm:text-4xl text-[#12100E] font-medium leading-tight mb-4">
                         {product.name}
                     </h1>
 
+                    {/* RATING */}
                     {avgRating && (
-                        <div className="flex items-center" style={{ gap: 6, marginBottom: 18, fontSize: 13, color: COLORS.sage }}>
-                            <Star size={14} fill={COLORS.brass} stroke="none" />
-                            {avgRating} ({product.reviews.length} review{product.reviews.length !== 1 ? "s" : ""})
+                        <div className="flex items-center gap-2 mb-6 text-sm text-stone-600">
+                            <div className="flex items-center gap-1 text-[#D4AF37]">
+                                <Star size={16} fill="currentColor" />
+                                <span className="font-bold text-[#12100E]">{avgRating}</span>
+                            </div>
+                            <span className="text-stone-400">•</span>
+                            <span>{product.reviews.length} customer review{product.reviews.length !== 1 && "s"}</span>
                         </div>
                     )}
 
-                    <p className="voice" style={{ fontSize: 28, color: COLORS.sienna, fontWeight: 500, marginBottom: 22 }}>
+                    {/* PRICE */}
+                    <div className="text-3xl font-bold text-[#12100E] mb-6">
                         ${Number(product.price).toFixed(2)}
+                    </div>
+
+                    <p className="text-stone-600 text-sm sm:text-base leading-relaxed mb-8 font-light">
+                        {product.description || "Each item is carefully crafted using traditional studio methods, making every single piece unique."}
                     </p>
 
-                    <p style={{ fontSize: 15, lineHeight: 1.75, color: "#3a3733", marginBottom: 28 }}>
-                        {product.description}
-                    </p>
-
-                    <div className="flex items-center" style={{ gap: 14, marginBottom: 28 }}>
-                        <div className="flex items-center" style={{ border: "1px solid rgba(15,13,11,0.2)", borderRadius: 2 }}>
+                    {/* QUANTITY & ADD TO CART */}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8">
+                        <div className="flex items-center justify-between border border-stone-300 rounded-full px-4 py-2.5 bg-white shadow-sm w-36">
                             <button
                                 onClick={() => setQty((q) => Math.max(1, q - 1))}
-                                style={{ padding: "10px 16px", background: "transparent", border: "none", cursor: "pointer", fontSize: 15 }}
+                                className="p-1 text-stone-600 hover:text-black transition-colors"
                             >
-                                −
+                                <Minus size={14} />
                             </button>
-                            <span style={{ padding: "0 14px", fontSize: 14 }}>{qty}</span>
+                            <span className="font-semibold text-sm select-none">{qty}</span>
                             <button
                                 onClick={() => setQty((q) => Math.min(product.stock ?? 99, q + 1))}
-                                style={{ padding: "10px 16px", background: "transparent", border: "none", cursor: "pointer", fontSize: 15 }}
+                                className="p-1 text-stone-600 hover:text-black transition-colors"
                             >
-                                +
+                                <Plus size={14} />
                             </button>
                         </div>
 
-                        <button
+                        <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
                             onClick={addToCart}
                             disabled={adding || product.stock === 0}
-                            className="btn-primary"
-                            style={{
-                                flex: 1,
-                                background: product.stock === 0 ? COLORS.sage : COLORS.sienna,
-                                color: COLORS.bgLight,
-                                border: "none",
-                                padding: "13px 22px",
-                                fontSize: 14,
-                                fontWeight: 500,
-                                borderRadius: 2,
-                                cursor: product.stock === 0 ? "not-allowed" : "pointer",
-                            }}
+                            className={`flex-1 px-8 py-3.5 rounded-full font-medium text-sm text-white shadow-lg transition-all flex items-center justify-center gap-2 ${
+                                product.stock === 0
+                                    ? "bg-stone-400 cursor-not-allowed"
+                                    : addedSuccess
+                                    ? "bg-emerald-600"
+                                    : "bg-gradient-to-r from-[#C86D51] to-[#B25539]"
+                            }`}
                         >
-                            {product.stock === 0 ? "Out of stock" : adding ? "Adding..." : "Add to cart"}
-                        </button>
+                            {addedSuccess ? (
+                                <>
+                                    <CheckCircle2 size={18} /> Added to Cart!
+                                </>
+                            ) : product.stock === 0 ? (
+                                "Sold Out"
+                            ) : adding ? (
+                                "Adding..."
+                            ) : (
+                                <>
+                                    <ShoppingBag size={18} /> Add to Cart
+                                </>
+                            )}
+                        </motion.button>
                     </div>
 
-                    <p style={{ fontSize: 12.5, color: COLORS.sage }}>
-                        {product.stock > 0 ? `${product.stock} in stock` : "Currently unavailable"} · Category: {product.category?.name}
-                    </p>
-                </div>
+                    {/* PERKS BADGES */}
+                    <div className="grid grid-cols-2 gap-4 py-6 border-t border-b border-stone-200/80 mb-8 text-xs text-stone-600">
+                        <div className="flex items-center gap-3">
+                            <ShieldCheck size={20} className="text-[#C86D51]" />
+                            <span>Direct Studio Guarantee</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <Truck size={20} className="text-[#C86D51]" />
+                            <span>Eco-friendly Studio Packaging</span>
+                        </div>
+                    </div>
+                </motion.div>
             </div>
 
-            {/* REVIEWS */}
-            {product.reviews?.length > 0 && (
-                <div style={{ padding: "0 3rem 4rem", maxWidth: 800 }}>
-                    <h2 className="voice" style={{ fontSize: 24, fontWeight: 500, marginBottom: 20 }}>What people are saying</h2>
-                    <div className="flex flex-col" style={{ gap: 18 }}>
+            {/* REVIEWS SECTION */}
+            <div className="max-w-7xl mx-auto px-6 md:px-12 py-12 border-t border-stone-200/80">
+                <h2 className="font-voice text-2xl text-[#12100E] font-medium mb-8">
+                    Customer Reviews
+                </h2>
+
+                {product.reviews?.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
                         {product.reviews.map((r) => (
-                            <div key={r.id} style={{ borderTop: "1px solid rgba(15,13,11,0.1)", paddingTop: 16 }}>
-                                <div className="flex items-center" style={{ gap: 8, marginBottom: 6 }}>
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} size={13} fill={i < r.rating ? COLORS.brass : "none"} stroke={COLORS.brass} />
-                                    ))}
-                                    <span style={{ fontSize: 13, color: COLORS.sage, marginLeft: 6 }}>{r.user?.name}</span>
+                            <div key={r.id} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className="flex text-[#D4AF37]">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star key={i} size={14} fill={i < r.rating ? "currentColor" : "none"} stroke="currentColor" />
+                                        ))}
+                                    </div>
+                                    <span className="text-xs font-semibold text-stone-700 ml-2">{r.user?.name || "Verified Customer"}</span>
                                 </div>
-                                <p style={{ fontSize: 14, lineHeight: 1.6 }}>{r.comment}</p>
+                                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">{r.comment}</p>
                             </div>
                         ))}
                     </div>
-                </div>
-            )}
+                ) : (
+                    <p className="text-sm text-stone-500 font-light mb-8">No customer reviews yet.</p>
+                )}
 
-            {/* REVIEW FORM — only shown to customers who bought this and haven't reviewed yet */}
-            {canReview && !alreadyReviewed && <ReviewForm productId={product.id} />}
-            {alreadyReviewed && (
-                <div style={{ padding: "0 3rem 2rem", maxWidth: 800 }}>
-                    <p style={{ fontSize: 13.5, color: COLORS.sage }}>You've already reviewed this product. Thank you!</p>
-                </div>
-            )}
-
-            {/* RELATED PRODUCTS */}
-            {related?.length > 0 && (
-                <div style={{ padding: "1rem 3rem 5rem", borderTop: `1px solid rgba(15,13,11,0.08)` }}>
-                    <p style={{ fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase", color: COLORS.sage, margin: "2rem 0 20px" }}>
-                        More from this studio
-                    </p>
-                    <div className="grid grid-cols-4" style={{ gap: 22 }}>
-                        {related.map((p) => (
-                            <Link
-                                key={p.id}
-                                href={`/shop/${p.slug}`}
-                                className="card-hover"
-                                style={{ textDecoration: "none", color: COLORS.ink }}
-                            >
-                                <div style={{ height: 170, borderRadius: 4, marginBottom: 10, background: `linear-gradient(200deg, ${COLORS.sienna}22, ${COLORS.sage}33)` }} />
-                                <p style={{ fontSize: 13.5, fontWeight: 500, marginBottom: 3 }}>{p.name}</p>
-                                <p style={{ fontSize: 13, color: COLORS.sienna }}>${Number(p.price).toFixed(2)}</p>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            )}
+                {canReview && !alreadyReviewed && <ReviewForm productId={product.id} />}
+            </div>
         </div>
     );
 }
@@ -223,17 +219,17 @@ function ReviewForm({ productId }) {
     };
 
     return (
-        <div style={{ padding: "0 3rem 3rem", maxWidth: 800 }}>
-            <h3 className="voice" style={{ fontSize: 20, fontWeight: 500, marginBottom: 14 }}>Leave a review</h3>
-            <form onSubmit={submit} className="flex flex-col" style={{ gap: 14 }}>
-                <div className="flex items-center" style={{ gap: 6 }}>
+        <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm max-w-xl">
+            <h3 className="font-voice text-xl font-medium mb-4">Write a Review</h3>
+            <form onSubmit={submit} className="flex flex-col gap-4">
+                <div className="flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map((n) => (
                         <Star
                             key={n}
                             size={22}
-                            fill={n <= data.rating ? COLORS.brass : "none"}
-                            stroke={COLORS.brass}
-                            style={{ cursor: "pointer" }}
+                            fill={n <= data.rating ? "#D4AF37" : "none"}
+                            stroke="#D4AF37"
+                            className="cursor-pointer hover:scale-110 transition-transform"
                             onClick={() => setData("rating", n)}
                         />
                     ))}
@@ -241,16 +237,17 @@ function ReviewForm({ productId }) {
                 <textarea
                     value={data.comment}
                     onChange={(e) => setData("comment", e.target.value)}
-                    placeholder="Share your thoughts on this piece..."
-                    style={{ padding: "11px 14px", fontSize: 14, border: "1px solid rgba(15,13,11,0.15)", borderRadius: 2, minHeight: 90, fontFamily: "'Inter', sans-serif" }}
+                    placeholder="Share your experience with this studio piece..."
+                    className="w-full p-4 rounded-xl border border-stone-300 focus:outline-none focus:border-[#C86D51] text-sm"
+                    rows={4}
                 />
-                {errors.review && <p style={{ color: COLORS.sienna, fontSize: 13 }}>{errors.review}</p>}
+                {errors.comment && <p className="text-xs text-red-500">{errors.comment}</p>}
                 <button
                     type="submit"
                     disabled={processing}
-                    style={{ background: COLORS.sienna, color: COLORS.bgLight, border: "none", padding: "12px 24px", borderRadius: 2, fontSize: 14, fontWeight: 500, width: "fit-content", cursor: "pointer" }}
+                    className="px-6 py-3 rounded-full bg-[#12100E] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[#C86D51] transition-colors w-fit"
                 >
-                    {processing ? "Submitting..." : "Submit review"}
+                    {processing ? "Submitting..." : "Post Review"}
                 </button>
             </form>
         </div>

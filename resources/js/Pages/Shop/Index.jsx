@@ -1,41 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Link, router } from "@inertiajs/react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, Eye, Sparkles, Filter } from "lucide-react";
+import { motion } from "framer-motion";
 import Navbar from "../../Components/Navbar";
-
-const COLORS = {
-    bg: "#1C1815",
-    bgLight: "#F2EAE0",
-    sienna: "#B5563C",
-    sage: "#7C8471",
-    brass: "#A88A5B",
-    ink: "#0F0D0B",
-};
-
-function useReveal() {
-    const ref = useRef(null);
-    const [visible, setVisible] = useState(false);
-    useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        const obs = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setVisible(true);
-                    obs.unobserve(el);
-                }
-            },
-            { threshold: 0.1 }
-        );
-        obs.observe(el);
-        return () => obs.disconnect();
-    }, []);
-    return [ref, visible];
-}
 
 export default function ShopIndex({ products, categories, filters }) {
     const [search, setSearch] = useState(filters?.search || "");
-    const [gridRef, gridVisible] = useReveal();
 
     const applyFilter = (params) => {
         router.get("/shop", { ...filters, ...params }, { preserveState: true, replace: true });
@@ -48,128 +18,169 @@ export default function ShopIndex({ products, categories, filters }) {
 
     const productList = products?.data ?? [];
 
-    return (
-        <div style={{ fontFamily: "'Inter', sans-serif", background: COLORS.bgLight, color: COLORS.ink, minHeight: "100vh" }}>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap');
-        .voice { font-family: 'Fraunces', serif; }
-        @keyframes riseIn {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.08, delayChildren: 0.05 }
         }
-        .reveal { animation: riseIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
-        .card-hover { transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
-        .card-hover:hover { transform: translateY(-5px); }
-        .pill { transition: all 0.3s ease; cursor: pointer; }
-      `}</style>
+    };
 
-            {/* NAV */}
+    const itemVariants = {
+        hidden: { y: 25, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-[#F8F5F0] text-[#12100E] font-sans">
             <Navbar />
 
-            {/* HEADER */}
-            <div style={{ padding: "3.5rem 3rem 2rem", background: COLORS.bg, color: COLORS.bgLight }}>
-                <p style={{ fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase", color: COLORS.brass, marginBottom: 12 }}>
-                    The full collection
-                </p>
-                <h1 className="voice" style={{ fontSize: 42, fontWeight: 500, marginBottom: 28 }}>
-                    Shop every studio
-                </h1>
-
-                {/* SEARCH */}
-                <form onSubmit={handleSearchSubmit} className="flex items-center" style={{ maxWidth: 420, gap: 10 }}>
-                    <div className="flex items-center" style={{ flex: 1, background: "rgba(242,234,224,0.08)", border: "1px solid rgba(242,234,224,0.2)", borderRadius: 2, padding: "10px 14px" }}>
-                        <Search size={16} style={{ opacity: 0.6, marginRight: 10 }} />
-                        <input
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search handmade pieces..."
-                            style={{ background: "transparent", border: "none", outline: "none", color: COLORS.bgLight, fontSize: 14, width: "100%" }}
-                        />
-                    </div>
-                    <button type="submit" style={{ background: COLORS.sienna, color: COLORS.bgLight, border: "none", padding: "11px 20px", fontSize: 14, borderRadius: 2, cursor: "pointer" }}>
-                        Search
-                    </button>
-                </form>
-            </div>
-
-            {/* CATEGORY PILLS */}
-            <div className="flex items-center" style={{ padding: "1.75rem 3rem", gap: 10, flexWrap: "wrap", borderBottom: "1px solid rgba(15,13,11,0.08)" }}>
-                <SlidersHorizontal size={15} style={{ color: COLORS.sage, marginRight: 6 }} />
-                <span
-                    className="pill"
-                    onClick={() => applyFilter({ category: null })}
-                    style={{
-                        padding: "7px 16px",
-                        borderRadius: 20,
-                        fontSize: 13,
-                        background: !filters?.category ? COLORS.sienna : "rgba(15,13,11,0.06)",
-                        color: !filters?.category ? COLORS.bgLight : COLORS.ink,
-                    }}
-                >
-                    All
-                </span>
-                {categories?.map((cat) => (
-                    <span
-                        key={cat.id}
-                        className="pill"
-                        onClick={() => applyFilter({ category: cat.slug })}
-                        style={{
-                            padding: "7px 16px",
-                            borderRadius: 20,
-                            fontSize: 13,
-                            background: filters?.category === cat.slug ? COLORS.sienna : "rgba(15,13,11,0.06)",
-                            color: filters?.category === cat.slug ? COLORS.bgLight : COLORS.ink,
-                        }}
-                    >
-                        {cat.name}
+            {/* HEADER SECTION */}
+            <div className="relative bg-[#12100E] text-white py-16 px-6 md:px-12 border-b border-white/10 overflow-hidden">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-[#C86D51]/10 rounded-full blur-3xl pointer-events-none" />
+                
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <span className="text-xs uppercase tracking-[0.25em] font-semibold text-[#D4AF37] block mb-3">
+                        The Master Catalog
                     </span>
-                ))}
+                    <h1 className="font-voice text-4xl sm:text-5xl font-medium mb-8">
+                        Explore Handcrafted Pieces
+                    </h1>
+
+                    {/* SEARCH INPUT BAR */}
+                    <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row items-center gap-3 max-w-xl">
+                        <div className="relative w-full flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-3 text-sm focus-within:border-[#D4AF37] transition-all">
+                            <Search size={18} className="text-stone-400 mr-3 flex-shrink-0" />
+                            <input
+                                value={search}
+                                onChange={(e) => setSearch(e.value || e.target.value)}
+                                placeholder="Search ceramic vases, woodwork, linen..."
+                                className="w-full bg-transparent border-none outline-none text-white placeholder-stone-400 text-sm"
+                            />
+                        </div>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            type="submit"
+                            className="w-full sm:w-auto px-7 py-3 rounded-full bg-gradient-to-r from-[#C86D51] to-[#B25539] text-white font-medium text-sm shadow-md transition-all flex items-center justify-center gap-2"
+                        >
+                            <Filter size={15} />
+                            Filter
+                        </motion.button>
+                    </form>
+                </div>
             </div>
 
-            {/* PRODUCT GRID */}
-            <div ref={gridRef} style={{ padding: "2.5rem 3rem 5rem" }}>
+            {/* CATEGORY FILTER PILLS BAR */}
+            <div className="bg-white border-b border-stone-200/80 px-6 md:px-12 py-5 sticky top-[73px] z-40 backdrop-blur-lg bg-white/90">
+                <div className="max-w-7xl mx-auto flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
+                    <SlidersHorizontal size={16} className="text-[#C86D51] flex-shrink-0 mr-2" />
+                    
+                    <button
+                        onClick={() => applyFilter({ category: null })}
+                        className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex-shrink-0 ${
+                            !filters?.category
+                                ? "bg-[#12100E] text-white shadow-md"
+                                : "bg-stone-100 text-stone-600 hover:bg-stone-200/80"
+                        }`}
+                    >
+                        All Categories
+                    </button>
+
+                    {categories?.map((cat) => (
+                        <button
+                            key={cat.id}
+                            onClick={() => applyFilter({ category: cat.slug })}
+                            className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex-shrink-0 ${
+                                filters?.category === cat.slug
+                                    ? "bg-[#C86D51] text-white shadow-md"
+                                    : "bg-stone-100 text-stone-600 hover:bg-stone-200/80"
+                            }`}
+                        >
+                            {cat.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* PRODUCT CATALOG GRID */}
+            <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
                 {productList.length === 0 ? (
-                    <p style={{ color: COLORS.sage, fontSize: 15 }}>No pieces found. Try a different search or category.</p>
-                ) : (
-                    <div className="grid grid-cols-3" style={{ gap: 28 }}>
-                        {productList.map((p, i) => (
-                            <Link
-                                href={`/shop/${p.slug}`}
-                                key={p.id}
-                                className={gridVisible ? "reveal card-hover" : "card-hover"}
-                                style={{ animationDelay: gridVisible ? `${(i % 6) * 0.07}s` : "0s", opacity: gridVisible ? undefined : 0, textDecoration: "none", color: COLORS.ink }}
-                            >
-                                <div style={{ height: 230, borderRadius: 4, marginBottom: 12, overflow: "hidden", background: `linear-gradient(200deg, ${COLORS.sienna}22, ${COLORS.sage}33)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    {p.image ? (
-                                        <img src={`/storage/${p.image}`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                    ) : null}
-                                </div>
-                                <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 3 }}>{p.name}</p>
-                                <p style={{ fontSize: 12.5, color: COLORS.sage, marginBottom: 5 }}>{p.shop?.name}</p>
-                                <p style={{ fontSize: 14, color: COLORS.sienna, fontWeight: 500 }}>${Number(p.price).toFixed(2)}</p>
-                            </Link>
-                        ))}
+                    <div className="p-20 text-center bg-white rounded-3xl border border-stone-200 text-stone-500 font-light shadow-sm">
+                        <Sparkles size={40} className="mx-auto mb-4 text-[#C86D51] opacity-60" />
+                        <h3 className="font-voice text-xl text-[#12100E] mb-2">No artisan creations found</h3>
+                        <p className="text-xs text-stone-400">Try adjusting your search criteria or selecting another category.</p>
                     </div>
+                ) : (
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+                    >
+                        {productList.map((p) => (
+                            <motion.div
+                                key={p.id}
+                                variants={itemVariants}
+                                whileHover={{ y: -8 }}
+                                className="group bg-white rounded-2xl overflow-hidden border border-stone-200/80 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col justify-between"
+                            >
+                                <Link href={`/shop/${p.slug}`}>
+                                    <div className="h-72 overflow-hidden relative bg-stone-100 flex items-center justify-center">
+                                        {p.image ? (
+                                            <img
+                                                src={p.image.startsWith('http') ? p.image : `/storage/${p.image}`}
+                                                alt={p.name}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            />
+                                        ) : (
+                                            <Sparkles size={32} className="text-stone-300" />
+                                        )}
+
+                                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                            <span className="p-3 bg-white/95 text-[#12100E] rounded-full shadow-xl hover:scale-110 transition-transform">
+                                                <Eye size={18} />
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-6">
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <span className="text-[11px] font-bold text-[#C86D51] uppercase tracking-wider">
+                                                {p.shop?.name || "Studio Creation"}
+                                            </span>
+                                            <span className="text-base font-bold text-[#12100E]">
+                                                ${Number(p.price).toFixed(2)}
+                                            </span>
+                                        </div>
+
+                                        <h3 className="font-voice text-lg text-[#12100E] font-medium group-hover:text-[#C86D51] transition-colors truncate">
+                                            {p.name}
+                                        </h3>
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        ))}
+                    </motion.div>
                 )}
 
                 {/* PAGINATION */}
-                {products?.links && (
-                    <div className="flex items-center justify-center" style={{ gap: 8, marginTop: 48 }}>
+                {products?.links && products.links.length > 3 && (
+                    <div className="flex items-center justify-center gap-2 mt-16">
                         {products.links.map((link, i) => (
                             <button
                                 key={i}
                                 disabled={!link.url}
                                 onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
-                                style={{
-                                    padding: "8px 14px",
-                                    fontSize: 13,
-                                    borderRadius: 2,
-                                    border: "1px solid rgba(15,13,11,0.15)",
-                                    background: link.active ? COLORS.sienna : "transparent",
-                                    color: link.active ? COLORS.bgLight : COLORS.ink,
-                                    cursor: link.url ? "pointer" : "default",
-                                    opacity: link.url ? 1 : 0.35,
-                                }}
+                                className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
+                                    link.active
+                                        ? "bg-[#C86D51] text-white shadow-md"
+                                        : "bg-white text-stone-700 hover:bg-stone-200 border border-stone-200"
+                                } ${!link.url && "opacity-40 cursor-not-allowed"}`}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ))}

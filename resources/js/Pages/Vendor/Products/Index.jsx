@@ -1,98 +1,203 @@
-import React from "react";
-import { Link, router } from "@inertiajs/react";
-import { Plus, Pencil, Trash2, ChevronLeft } from "lucide-react";
+import React, { useState } from "react";
+import { Link, router, usePage } from "@inertiajs/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Pencil, Trash2, Package, AlertTriangle, Search, ShoppingBag, CheckCircle } from "lucide-react";
 import VendorNavbar from "../../../Components/VendorNavbar";
 
-const COLORS = {
-    bg: "#1C1815",
-    bgLight: "#F2EAE0",
-    sienna: "#B5563C",
-    sage: "#7C8471",
-    brass: "#A88A5B",
-    ink: "#0F0D0B",
-};
-
 export default function VendorProductsIndex({ products }) {
+    const { flash } = usePage().props;
+    const [search, setSearch] = useState("");
+    const [deletingId, setDeletingId] = useState(null);
+
     const deleteProduct = (id) => {
         if (confirm("Delete this product? This can't be undone.")) {
-            router.delete(`/vendor/products/${id}`, { preserveScroll: true });
+            setDeletingId(id);
+            router.delete(`/vendor/products/${id}`, {
+                preserveScroll: true,
+                onFinish: () => setDeletingId(null),
+            });
         }
     };
 
-    return (
-        <div style={{ fontFamily: "'Inter', sans-serif", background: COLORS.bgLight, color: COLORS.ink, minHeight: "100vh" }}>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600&family=Inter:wght@400;500;600&display=swap');
-        .voice { font-family: 'Fraunces', serif; }
-        .icon-btn { transition: opacity 0.2s ease; cursor: pointer; }
-        .icon-btn:hover { opacity: 0.6; }
-      `}</style>
+    const filtered = products.filter((p) =>
+        p.name.toLowerCase().includes(search.toLowerCase())
+    );
 
+    return (
+        <div className="min-h-screen bg-[#F2EAE0] text-stone-800 font-sans">
             <VendorNavbar />
 
-            <div style={{ padding: "2.5rem 3rem 1.5rem" }}>
-                <Link href="/vendor/dashboard" className="flex items-center" style={{ gap: 6, fontSize: 13, color: COLORS.sage, textDecoration: "none", width: "fit-content", marginBottom: 20 }}>
-                    <ChevronLeft size={15} /> Back to dashboard
-                </Link>
-                <div className="flex items-center justify-between">
+            <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-7xl mx-auto px-6 lg:px-12 py-10 space-y-8"
+            >
+                {/* Flash message */}
+                <AnimatePresence>
+                    {flash?.success && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className="flex items-center space-x-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 text-sm font-medium"
+                        >
+                            <CheckCircle size={16} className="text-emerald-600 flex-shrink-0" />
+                            <span>{flash.success}</span>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-stone-300/60 pb-8">
                     <div>
-                        <p style={{ fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase", color: COLORS.brass, marginBottom: 10 }}>
-                            Your studio
+                        <span className="text-xs font-semibold uppercase tracking-wider text-amber-700">
+                            Your Studio
+                        </span>
+                        <h1 className="font-serif text-3xl lg:text-4xl font-normal text-stone-900 mt-1">
+                            Products
+                        </h1>
+                        <p className="text-sm text-stone-500 font-light mt-1.5">
+                            {products.length} product{products.length !== 1 ? "s" : ""} listed
                         </p>
-                        <h1 className="voice" style={{ fontSize: 34, fontWeight: 500 }}>Products</h1>
                     </div>
                     <Link
                         href="/vendor/products/create"
-                        className="flex items-center"
-                        style={{ gap: 8, background: COLORS.sienna, color: COLORS.bgLight, padding: "12px 22px", borderRadius: 2, fontSize: 14, fontWeight: 500, textDecoration: "none" }}
+                        className="inline-flex items-center space-x-2 py-3 px-5 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm rounded-xl shadow-md transition-all cursor-pointer"
                     >
-                        <Plus size={16} /> Add product
+                        <Plus size={16} />
+                        <span>Add Product</span>
                     </Link>
                 </div>
-            </div>
 
-            <div style={{ padding: "0 3rem 5rem" }}>
-                {products.length === 0 ? (
-                    <div style={{ background: "#fff", border: "1px solid rgba(15,13,11,0.08)", borderRadius: 4, padding: 40, textAlign: "center" }}>
-                        <p style={{ fontSize: 15, color: COLORS.sage, marginBottom: 16 }}>You haven't listed any products yet.</p>
-                        <Link href="/vendor/products/create" style={{ fontSize: 14, color: COLORS.sienna, textDecoration: "none" }}>
-                            Add your first product →
-                        </Link>
-                    </div>
-                ) : (
-                    <div style={{ background: "#fff", border: "1px solid rgba(15,13,11,0.08)", borderRadius: 4, overflow: "hidden" }}>
-                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                            <thead>
-                                <tr style={{ borderBottom: "1px solid rgba(15,13,11,0.08)", textAlign: "left" }}>
-                                    <th style={{ padding: "14px 20px", fontSize: 12.5, color: COLORS.sage, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>Product</th>
-                                    <th style={{ padding: "14px 20px", fontSize: 12.5, color: COLORS.sage, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>Price</th>
-                                    <th style={{ padding: "14px 20px", fontSize: 12.5, color: COLORS.sage, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>Stock</th>
-                                    <th style={{ padding: "14px 20px", fontSize: 12.5, color: COLORS.sage, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products.map((p) => (
-                                    <tr key={p.id} style={{ borderBottom: "1px solid rgba(15,13,11,0.06)" }}>
-                                        <td style={{ padding: "16px 20px", fontSize: 14, fontWeight: 500 }}>{p.name}</td>
-                                        <td style={{ padding: "16px 20px", fontSize: 14, color: COLORS.sienna }}>${Number(p.price).toFixed(2)}</td>
-                                        <td style={{ padding: "16px 20px", fontSize: 14 }}>
-                                            {p.stock > 0 ? p.stock : <span style={{ color: COLORS.sienna }}>Out of stock</span>}
-                                        </td>
-                                        <td style={{ padding: "16px 20px" }}>
-                                            <div className="flex items-center" style={{ gap: 16, justifyContent: "flex-end" }}>
-                                                <Link href={`/vendor/products/${p.id}/edit`}>
-                                                    <Pencil size={16} className="icon-btn" style={{ color: COLORS.sage }} />
-                                                </Link>
-                                                <Trash2 size={16} className="icon-btn" style={{ color: COLORS.sage }} onClick={() => deleteProduct(p.id)} />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                {/* Search bar */}
+                {products.length > 0 && (
+                    <div className="relative max-w-sm">
+                        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search products..."
+                            className="w-full pl-9 pr-4 py-2.5 bg-white border border-stone-200 rounded-xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-all"
+                        />
                     </div>
                 )}
-            </div>
+
+                {/* Products table */}
+                {products.length === 0 ? (
+                    <div className="bg-white border border-stone-200 rounded-2xl p-16 text-center shadow-sm">
+                        <div className="bg-stone-100 p-4 rounded-full w-fit mx-auto mb-4">
+                            <ShoppingBag size={36} className="text-stone-400" />
+                        </div>
+                        <p className="font-serif text-xl text-stone-800 mb-2">No products yet</p>
+                        <p className="text-sm text-stone-400 font-light mb-6">
+                            Start building your catalog — add your first handcrafted item.
+                        </p>
+                        <Link
+                            href="/vendor/products/create"
+                            className="inline-flex items-center space-x-2 py-2.5 px-5 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm rounded-xl transition-all cursor-pointer shadow-sm"
+                        >
+                            <Plus size={15} />
+                            <span>Add your first product</span>
+                        </Link>
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <div className="bg-white border border-stone-200 rounded-2xl p-10 text-center shadow-sm">
+                        <p className="text-stone-500 text-sm">No products matching "<span className="font-semibold text-stone-700">{search}</span>"</p>
+                    </div>
+                ) : (
+                    <div className="bg-white border border-stone-200 rounded-2xl shadow-sm overflow-hidden">
+                        {/* Table Header */}
+                        <div className="grid grid-cols-[56px_1fr_120px_100px_110px] items-center gap-4 px-6 py-3.5 border-b border-stone-100 bg-stone-50">
+                            <div />
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-stone-400">Product</p>
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-stone-400">Price</p>
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-stone-400">Stock</p>
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-stone-400 text-right">Actions</p>
+                        </div>
+
+                        {/* Rows */}
+                        <AnimatePresence>
+                            {filtered.map((p, idx) => (
+                                <motion.div
+                                    key={p.id}
+                                    layout
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: deletingId === p.id ? 0.4 : 1 }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className={`grid grid-cols-[56px_1fr_120px_100px_110px] items-center gap-4 px-6 py-4 ${
+                                        idx < filtered.length - 1 ? "border-b border-stone-100" : ""
+                                    } hover:bg-stone-50/60 transition-colors group`}
+                                >
+                                    {/* Thumbnail */}
+                                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-stone-100 border border-stone-200 flex-shrink-0 flex items-center justify-center">
+                                        {p.image ? (
+                                            <img
+                                                src={`/storage/${p.image}`}
+                                                alt={p.name}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                        ) : (
+                                            <Package size={18} className="text-stone-300" />
+                                        )}
+                                    </div>
+
+                                    {/* Name + category */}
+                                    <div className="min-w-0">
+                                        <p className="font-semibold text-stone-900 text-sm truncate group-hover:text-amber-800 transition-colors">
+                                            {p.name}
+                                        </p>
+                                        {p.category?.name && (
+                                            <p className="text-xs text-stone-400 font-light mt-0.5">{p.category.name}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Price */}
+                                    <p className="text-sm font-semibold text-stone-900">
+                                        ${Number(p.price).toFixed(2)}
+                                    </p>
+
+                                    {/* Stock badge */}
+                                    <div>
+                                        {p.stock > 10 ? (
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide bg-emerald-100 text-emerald-800">
+                                                {p.stock} in stock
+                                            </span>
+                                        ) : p.stock > 0 ? (
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide bg-amber-100 text-amber-800">
+                                                Low · {p.stock} left
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide bg-red-100 text-red-700">
+                                                <AlertTriangle size={10} />
+                                                <span>Out of stock</span>
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex items-center justify-end space-x-2">
+                                        <Link
+                                            href={`/vendor/products/${p.id}/edit`}
+                                            className="p-2 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+                                            title="Edit product"
+                                        >
+                                            <Pencil size={15} />
+                                        </Link>
+                                        <button
+                                            onClick={() => deleteProduct(p.id)}
+                                            disabled={deletingId === p.id}
+                                            className="p-2 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-40"
+                                            title="Delete product"
+                                        >
+                                            <Trash2 size={15} />
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                )}
+            </motion.div>
         </div>
     );
 }

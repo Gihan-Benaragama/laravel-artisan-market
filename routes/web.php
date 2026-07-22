@@ -33,6 +33,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'vendor'])->prefix('vendor')->name('vendor.')->group(function () {
     Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
     Route::post('/shop', [VendorShopController::class, 'store'])->name('shop.store');
+    Route::get('/shop/edit', [VendorShopController::class, 'edit'])->name('shop.edit');
+    Route::post('/shop/edit', [VendorShopController::class, 'update'])->name('shop.update');
     Route::post('/payouts', [VendorPayoutController::class, 'store'])->name('payouts.store');
 
     Route::get('/products', [VendorProductController::class, 'index'])->name('products.index');
@@ -56,6 +58,8 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/{slug}', [ShopController::class, 'show'])->name('shop.show');
+Route::get('/studios/{shop}', [ShopController::class, 'studioShow'])->name('studios.show');
+Route::get('/vendor/{vendor}', [ShopController::class, 'vendorShow'])->name('vendor.show');
 
 // Home
 Route::get('/', [HomeController::class, 'index'])->name('home');

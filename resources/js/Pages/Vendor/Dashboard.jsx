@@ -1,15 +1,28 @@
 import React from "react";
 import { Link, useForm, router } from "@inertiajs/react";
-import { Package, DollarSign, Plus, ArrowRight, Store } from "lucide-react";
+import { motion } from "framer-motion";
+import { 
+    Package, 
+    DollarSign, 
+    Plus, 
+    ArrowRight, 
+    Store, 
+    TrendingUp, 
+    Wallet, 
+    Clock, 
+    CheckCircle,
+    ShoppingBag,
+    Settings
+} from "lucide-react";
 import VendorNavbar from "../../Components/VendorNavbar";
 
 const COLORS = {
   bg: "#1C1815",
-  bgLight: "#F2EAE0",
+  bgLight: "#F8F6F2", // Softer warm background
   sienna: "#B5563C",
   sage: "#7C8471",
   brass: "#A88A5B",
-  ink: "#0F0D0B",
+  ink: "#1C1815",
 };
 
 /** Shown when an approved vendor hasn't created their shop yet */
@@ -25,65 +38,63 @@ function SetupShopCard() {
   };
 
   return (
-    <div style={{ padding: "2rem 3rem 5rem", maxWidth: 520 }}>
-      <Store size={28} style={{ color: COLORS.sienna, marginBottom: 16 }} />
-      <h2 className="voice" style={{ fontSize: 26, fontWeight: 500, marginBottom: 8 }}>
-        Set up your studio
-      </h2>
-      <p style={{ fontSize: 14, color: COLORS.sage, lineHeight: 1.65, marginBottom: 28 }}>
-        Before you can list products, give your studio a name so customers can find you.
-      </p>
-
-      <form onSubmit={submit} className="flex flex-col" style={{ gap: 18 }}>
-        <div>
-          <label style={{ fontSize: 13, fontWeight: 500, display: "block", marginBottom: 6 }}>
-            Studio name
-          </label>
-          <input
-            value={data.name}
-            onChange={(e) => setData("name", e.target.value)}
-            placeholder="e.g. Earthen & Co."
-            style={{
-              width: "100%", padding: "11px 14px", fontSize: 14,
-              border: "1px solid rgba(15,13,11,0.15)", borderRadius: 2,
-              outline: "none", fontFamily: "'Inter', sans-serif",
-            }}
-          />
-          {errors.name && (
-            <p style={{ color: COLORS.sienna, fontSize: 12.5, marginTop: 4 }}>{errors.name}</p>
-          )}
+    <div className="min-h-[80vh] flex items-center justify-center p-6 bg-[#F2EAE0]">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-md w-full bg-white rounded-2xl border border-stone-200 shadow-xl p-8"
+      >
+        <div className="flex flex-col items-center text-center mb-6">
+          <div className="bg-amber-100 p-3.5 rounded-full text-amber-800 mb-4">
+            <Store size={32} />
+          </div>
+          <h2 className="font-serif text-2xl font-normal text-stone-900">
+            Set up your studio
+          </h2>
+          <p className="text-sm text-stone-500 font-light mt-2 max-w-sm">
+            Before you can list products, give your creative studio a name and details so customers can find you.
+          </p>
         </div>
 
-        <div>
-          <label style={{ fontSize: 13, fontWeight: 500, display: "block", marginBottom: 6 }}>
-            Short description <span style={{ color: COLORS.sage, fontWeight: 400 }}>(optional)</span>
-          </label>
-          <textarea
-            value={data.description}
-            onChange={(e) => setData("description", e.target.value)}
-            placeholder="Tell customers what you make..."
-            rows={3}
-            style={{
-              width: "100%", padding: "11px 14px", fontSize: 14,
-              border: "1px solid rgba(15,13,11,0.15)", borderRadius: 2,
-              outline: "none", resize: "vertical", fontFamily: "'Inter', sans-serif",
-            }}
-          />
-        </div>
+        <form onSubmit={submit} className="space-y-5">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">
+              Studio name
+            </label>
+            <input
+              value={data.name}
+              onChange={(e) => setData("name", e.target.value)}
+              placeholder="e.g. Earthen & Co."
+              className="block w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-all font-sans text-sm"
+              required
+            />
+            {errors.name && (
+              <p className="text-xs text-red-600 mt-1.5">{errors.name}</p>
+            )}
+          </div>
 
-        <button
-          type="submit"
-          disabled={processing}
-          style={{
-            background: COLORS.sienna, color: COLORS.bgLight, border: "none",
-            padding: "13px 0", fontSize: 14, fontWeight: 500, borderRadius: 2,
-            cursor: processing ? "not-allowed" : "pointer",
-            opacity: processing ? 0.7 : 1, transition: "opacity 0.2s ease",
-          }}
-        >
-          {processing ? "Creating studio..." : "Create my studio →"}
-        </button>
-      </form>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">
+              Short description <span className="text-stone-400 font-light">(optional)</span>
+            </label>
+            <textarea
+              value={data.description}
+              onChange={(e) => setData("description", e.target.value)}
+              placeholder="Tell customers what you make..."
+              rows={4}
+              className="block w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-all resize-none font-sans text-sm"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={processing}
+            className="w-full flex items-center justify-center py-3 bg-stone-900 hover:bg-stone-850 text-white font-medium text-sm rounded-xl shadow-md cursor-pointer transition-all disabled:opacity-50"
+          >
+            {processing ? "Creating studio..." : "Create my studio"}
+          </button>
+        </form>
+      </motion.div>
     </div>
   );
 }
@@ -96,16 +107,21 @@ export default function VendorDashboard({ shop, productCount, subOrders, totalEa
     }
   };
 
-  return (
-    <div style={{ fontFamily: "'Inter', sans-serif", background: COLORS.bgLight, color: COLORS.ink, minHeight: "100vh" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600&family=Inter:wght@400;500;600&display=swap');
-        .voice { font-family: 'Fraunces', serif; }
-        .btn-primary { transition: opacity 0.25s ease; cursor: pointer; text-decoration: none; }
-        .btn-primary:hover { opacity: 0.88; }
-        input:focus, textarea:focus { border-color: ${COLORS.sienna} !important; }
-      `}</style>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", damping: 25 } }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F2EAE0] text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-900">
       {/* NAV */}
       <VendorNavbar />
 
@@ -113,132 +129,195 @@ export default function VendorDashboard({ shop, productCount, subOrders, totalEa
       {!shop ? (
         <SetupShopCard />
       ) : (
-        <>
-          <div className="flex items-center justify-between" style={{ padding: "3rem 3rem 1rem" }}>
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="max-w-7xl mx-auto px-6 lg:px-12 py-10 space-y-10"
+        >
+          {/* HEADER */}
+          <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-stone-200 pb-8">
             <div>
-              <p style={{ fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase", color: COLORS.brass, marginBottom: 10 }}>
-                Vendor dashboard
-              </p>
-              <h1 className="voice" style={{ fontSize: 34, fontWeight: 500 }}>{shop?.name}</h1>
+              <span className="text-xs font-semibold uppercase tracking-wider text-amber-700">
+                Vendor Portal
+              </span>
+              <h1 className="font-serif text-3xl lg:text-4xl font-normal text-stone-900 mt-1">
+                {shop?.name}
+              </h1>
+              {shop?.description && (
+                <p className="text-sm text-stone-500 font-light mt-1.5 max-w-2xl">{shop.description}</p>
+              )}
             </div>
-            <Link
-              href="/vendor/products/create"
-              className="btn-primary flex items-center"
-              style={{ gap: 8, background: COLORS.sienna, color: COLORS.bgLight, padding: "12px 22px", borderRadius: 2, fontSize: 14, fontWeight: 500 }}
-            >
-              <Plus size={16} /> Add product
-            </Link>
-          </div>
+            <div className="flex items-center space-x-3">
+              <Link
+                href="/vendor/shop/edit"
+                className="inline-flex items-center space-x-2 py-3 px-5 bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 font-medium text-sm rounded-xl shadow-sm transition-all cursor-pointer"
+              >
+                <Settings size={16} />
+                <span>Shop Settings</span>
+              </Link>
+              <Link
+                href="/vendor/products/create"
+                className="inline-flex items-center space-x-2 py-3 px-5 bg-stone-900 hover:bg-stone-850 active:bg-stone-950 text-white font-medium text-sm rounded-xl shadow-md transition-all cursor-pointer"
+              >
+                <Plus size={16} />
+                <span>Add Product</span>
+              </Link>
+            </div>
+          </motion.div>
 
-          {/* STATS */}
-          <div className="grid grid-cols-3" style={{ gap: 24, padding: "1.5rem 3rem" }}>
-            <div style={{ background: "#fff", border: "1px solid rgba(15,13,11,0.08)", borderRadius: 4, padding: 24 }}>
-              <Package size={20} style={{ color: COLORS.sienna, marginBottom: 10 }} />
-              <p style={{ fontSize: 28, fontWeight: 600 }}>{productCount}</p>
-              <p style={{ fontSize: 13, color: COLORS.sage }}>Products listed</p>
-            </div>
-            <div style={{ background: "#fff", border: "1px solid rgba(15,13,11,0.08)", borderRadius: 4, padding: 24 }}>
-              <DollarSign size={20} style={{ color: COLORS.sienna, marginBottom: 10 }} />
-              <p style={{ fontSize: 28, fontWeight: 600 }}>${Number(totalEarnings ?? 0).toFixed(2)}</p>
-              <p style={{ fontSize: 13, color: COLORS.sage }}>Total earnings</p>
-            </div>
-            <div style={{ background: "#fff", border: "1px solid rgba(15,13,11,0.08)", borderRadius: 4, padding: 24, display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+          {/* STATS ANALYTICS */}
+          <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Listed Products */}
+            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm flex items-start space-x-4">
+              <div className="bg-amber-50 p-3 rounded-xl text-amber-800">
+                <Package size={22} />
+              </div>
               <div>
-                <DollarSign size={20} style={{ color: COLORS.sage, marginBottom: 10 }} />
-                <p style={{ fontSize: 28, fontWeight: 600 }}>${Number(availableBalance ?? 0).toFixed(2)}</p>
-                <p style={{ fontSize: 13, color: COLORS.sage }}>Available balance</p>
+                <p className="text-2xl font-semibold text-stone-900">{productCount}</p>
+                <p className="text-xs text-stone-400 uppercase tracking-wider font-semibold mt-1">Products Listed</p>
+              </div>
+            </div>
+
+            {/* Total Earnings */}
+            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm flex items-start space-x-4">
+              <div className="bg-emerald-50 p-3 rounded-xl text-emerald-800">
+                <TrendingUp size={22} />
+              </div>
+              <div>
+                <p className="text-2xl font-semibold text-stone-900">${Number(totalEarnings ?? 0).toFixed(2)}</p>
+                <p className="text-xs text-stone-400 uppercase tracking-wider font-semibold mt-1">Total Earnings</p>
+              </div>
+            </div>
+
+            {/* Available Balance */}
+            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm flex items-start justify-between">
+              <div className="flex items-start space-x-4">
+                <div className="bg-amber-100 p-3 rounded-xl text-amber-900">
+                  <Wallet size={22} />
+                </div>
+                <div>
+                  <p className="text-2xl font-semibold text-stone-900">${Number(availableBalance ?? 0).toFixed(2)}</p>
+                  <p className="text-xs text-stone-400 uppercase tracking-wider font-semibold mt-1">Available Balance</p>
+                </div>
               </div>
               {availableBalance > 0 && (
                 <button
                   onClick={requestPayout}
-                  className="btn-primary"
-                  style={{ background: COLORS.sienna, color: COLORS.bgLight, border: "none", padding: "8px 14px", fontSize: 12.5, borderRadius: 2, marginTop: 4 }}
+                  className="py-1.5 px-3.5 bg-amber-700 hover:bg-amber-800 active:bg-amber-900 text-white font-medium text-xs rounded-lg transition-colors cursor-pointer self-center"
                 >
-                  Request Payout
+                  Withdraw
                 </button>
               )}
             </div>
-          </div>
+          </motion.div>
 
-          {/* COLUMNS LAYOUT: ORDERS & PAYOUTS */}
-          <div className="grid grid-cols-3" style={{ gap: 32, padding: "1.5rem 3rem 5rem" }}>
-            {/* RECENT ORDERS */}
-            <div style={{ gridColumn: "span 2" }}>
-              <div className="flex items-center justify-between" style={{ marginBottom: 18 }}>
-                <h2 className="voice" style={{ fontSize: 22, fontWeight: 500 }}>Recent orders</h2>
-                <Link href="/vendor/products" className="flex items-center" style={{ gap: 6, fontSize: 13.5, color: COLORS.sienna, textDecoration: "none" }}>
-                  Manage products <ArrowRight size={14} />
+          {/* MAIN COLUMNS LAYOUT */}
+          <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            
+            {/* RECENT ORDERS PANEL (LEFT 2/3) */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="font-serif text-2xl font-normal text-stone-900">Recent Orders</h2>
+                <Link 
+                  href="/vendor/products" 
+                  className="inline-flex items-center space-x-1.5 text-xs font-semibold uppercase tracking-wider text-amber-850 hover:text-amber-950 transition-colors"
+                >
+                  <span>Manage Products</span>
+                  <ArrowRight size={13} />
                 </Link>
               </div>
 
               {(!subOrders || subOrders.length === 0) ? (
-                <div style={{ background: "#fff", border: "1px solid rgba(15,13,11,0.08)", borderRadius: 4, padding: 32, textAlign: "center", color: COLORS.sage, fontSize: 14 }}>
-                  No orders yet — they'll show up here once a customer buys from your studio.
+                <div className="bg-white border border-stone-200 rounded-2xl p-12 text-center text-stone-400 shadow-sm">
+                  <ShoppingBag size={42} className="mx-auto text-stone-300 mb-3" />
+                  <p className="text-sm font-medium text-stone-600">No orders yet</p>
+                  <p className="text-xs text-stone-400 font-light mt-1">They will show up here once customer orders from your studio.</p>
                 </div>
               ) : (
-                <div className="flex flex-col" style={{ gap: 10 }}>
+                <div className="space-y-4">
                   {subOrders.map((so) => (
-                    <div key={so.id} style={{ background: "#fff", border: "1px solid rgba(15,13,11,0.08)", borderRadius: 4, padding: "16px 20px" }}>
-                      <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
-                        <p style={{ fontSize: 14, fontWeight: 500 }}>Order #{so.order_id} · Sub-order #{so.id}</p>
-                        <span
-                          style={{
-                            fontSize: 12,
-                            padding: "4px 12px",
-                            borderRadius: 20,
-                            textTransform: "capitalize",
-                            background: so.status === "pending" ? "rgba(168,138,91,0.15)" : "rgba(124,132,113,0.15)",
-                            color: so.status === "pending" ? COLORS.brass : COLORS.sage,
-                          }}
-                        >
-                          {so.status}
-                        </span>
+                    <div 
+                      key={so.id} 
+                      className="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-100 pb-3.5 mb-3.5">
+                        <div>
+                          <p className="text-sm font-semibold text-stone-900">Order #{so.order_id}</p>
+                          <p className="text-xs text-stone-400 font-light mt-0.5">Sub-order id: #{so.id}</p>
+                        </div>
+                        <div>
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                            so.status === "pending" 
+                              ? "bg-amber-100 text-amber-850" 
+                              : "bg-emerald-100 text-emerald-800"
+                          }`}>
+                            {so.status}
+                          </span>
+                        </div>
                       </div>
-                      {so.items?.map((item) => (
-                        <p key={item.id} style={{ fontSize: 13, color: COLORS.sage }}>
-                          {item.quantity} × {item.product?.name} — ${Number(item.price * item.quantity).toFixed(2)}
-                        </p>
-                      ))}
+                      <div className="space-y-2">
+                        {so.items?.map((item) => (
+                          <div key={item.id} className="flex justify-between items-center text-sm">
+                            <p className="text-stone-700 font-light">
+                              <span className="font-semibold text-stone-900">{item.quantity}</span> × {item.product?.name}
+                            </p>
+                            <span className="font-medium text-stone-900">
+                              ${Number(item.price * item.quantity).toFixed(2)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* PAYOUT HISTORY */}
-            <div>
-              <h2 className="voice" style={{ fontSize: 22, fontWeight: 500, marginBottom: 18 }}>Payouts</h2>
+            {/* PAYOUT HISTORY PANEL (RIGHT 1/3) */}
+            <div className="space-y-6">
+              <h2 className="font-serif text-2xl font-normal text-stone-900">Payouts</h2>
+              
               {payouts.length === 0 ? (
-                <div style={{ background: "#fff", border: "1px solid rgba(15,13,11,0.08)", borderRadius: 4, padding: 24, textAlign: "center", color: COLORS.sage, fontSize: 13.5 }}>
-                  No payout history yet.
+                <div className="bg-white border border-stone-200 rounded-2xl p-10 text-center text-stone-400 shadow-sm">
+                  <Clock size={36} className="mx-auto text-stone-300 mb-3" />
+                  <p className="text-sm font-medium text-stone-600">No payout history</p>
+                  <p className="text-xs text-stone-400 font-light mt-1">Earnings payouts log here.</p>
                 </div>
               ) : (
-                <div className="flex flex-col" style={{ gap: 10 }}>
+                <div className="space-y-3">
                   {payouts.map((p) => (
-                    <div key={p.id} className="flex items-center justify-between" style={{ background: "#fff", border: "1px solid rgba(15,13,11,0.08)", borderRadius: 4, padding: "14px 16px" }}>
-                      <div>
-                        <p style={{ fontSize: 13.5, fontWeight: 500, color: COLORS.sienna }}>${Number(p.amount).toFixed(2)}</p>
-                        <p style={{ fontSize: 11.5, color: COLORS.sage }}>{new Date(p.created_at).toLocaleDateString()}</p>
+                    <div 
+                      key={p.id} 
+                      className="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm flex items-center justify-between"
+                    >
+                      <div className="flex items-center space-x-3.5">
+                        <div className="bg-stone-50 p-2.5 rounded-xl text-stone-500">
+                          <CheckCircle size={16} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-stone-900">${Number(p.amount).toFixed(2)}</p>
+                          <p className="text-xs text-stone-400 font-light mt-0.5">
+                            {new Date(p.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                      <span
-                        style={{
-                          fontSize: 11,
-                          padding: "3px 10px",
-                          borderRadius: 20,
-                          textTransform: "capitalize",
-                          background: p.status === "pending" ? "rgba(168,138,91,0.12)" : "rgba(124,132,113,0.15)",
-                          color: p.status === "pending" ? COLORS.brass : COLORS.sage,
-                        }}
-                      >
-                        {p.status}
-                      </span>
+                      <div>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          p.status === "pending"
+                            ? "bg-amber-100 text-amber-850"
+                            : "bg-emerald-100 text-emerald-800"
+                        }`}>
+                          {p.status}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-          </div>
-        </>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );

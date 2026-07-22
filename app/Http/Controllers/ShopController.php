@@ -54,4 +54,32 @@ class ShopController extends Controller
             'alreadyReviewed' => $alreadyReviewed,
         ]);
     }
+
+    public function studioShow(string $slugOrId)
+    {
+        $shop = \App\Models\Shop::with(['vendor.user', 'products.category'])
+            ->where('slug', $slugOrId)
+            ->orWhere('id', $slugOrId)
+            ->firstOrFail();
+
+        return Inertia::render('Shop/StudioShow', [
+            'shop' => $shop,
+            'products' => $shop->products,
+        ]);
+    }
+
+    public function vendorShow($vendorId)
+    {
+        $vendor = \App\Models\Vendor::with(['shop.products.category', 'user'])
+            ->findOrFail($vendorId);
+
+        if (!$vendor->shop) {
+            abort(404, 'Studio not found');
+        }
+
+        return Inertia::render('Shop/StudioShow', [
+            'shop' => $vendor->shop,
+            'products' => $vendor->shop->products,
+        ]);
+    }
 }

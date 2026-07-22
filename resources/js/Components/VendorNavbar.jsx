@@ -73,10 +73,10 @@ export default function VendorNavbar() {
 
             {/* VENDOR LINKS */}
             <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-                {navLink("/", "Home", true)}
                 {navLink("/vendor/dashboard", "Overview")}
                 {navLink("/vendor/products", "Products")}
-                {navLink("/dashboard", "My account")}
+                {navLink("/vendor/shop/edit", "Shop Settings")}
+                {navLink("/dashboard", "My Account")}
                 <button
                     onClick={() => router.post("/logout")}
                     style={{

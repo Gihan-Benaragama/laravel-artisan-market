@@ -1,31 +1,11 @@
-import React from "react";
-import { Link, useForm } from "@inertiajs/react";
-import { ChevronLeft } from "lucide-react";
+import React, { useState } from "react";
+import { Link, useForm, router } from "@inertiajs/react";
+import { motion } from "framer-motion";
+import { ChevronLeft, Save, Upload, Tag, DollarSign, Package, Image as ImageIcon, Plus } from "lucide-react";
 import VendorNavbar from "../../../Components/VendorNavbar";
 
-const COLORS = {
-    bg: "#1C1815",
-    bgLight: "#F2EAE0",
-    sienna: "#B5563C",
-    sage: "#7C8471",
-    brass: "#A88A5B",
-    ink: "#0F0D0B",
-};
-
-const inputStyle = {
-    width: "100%",
-    padding: "11px 14px",
-    fontSize: 14,
-    border: "1px solid rgba(15,13,11,0.15)",
-    borderRadius: 2,
-    outline: "none",
-    fontFamily: "'Inter', sans-serif",
-};
-
-const labelStyle = { fontSize: 13, fontWeight: 500, marginBottom: 6, display: "block" };
-
 export default function VendorProductsCreate({ categories }) {
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, processing, errors } = useForm({
         name: "",
         category_id: "",
         description: "",
@@ -34,111 +14,207 @@ export default function VendorProductsCreate({ categories }) {
         image: null,
     });
 
+    const [imagePreview, setImagePreview] = useState(null);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData("image", file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
     const submit = (e) => {
         e.preventDefault();
-        post("/vendor/products", { forceFormData: true });
+        router.post("/vendor/products", data, { forceFormData: true });
     };
 
     return (
-        <div style={{ fontFamily: "'Inter', sans-serif", background: COLORS.bgLight, color: COLORS.ink, minHeight: "100vh" }}>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600&family=Inter:wght@400;500;600&display=swap');
-        .voice { font-family: 'Fraunces', serif; }
-        .btn-primary { transition: opacity 0.25s ease; cursor: pointer; }
-        .btn-primary:hover { opacity: 0.88; }
-        input:focus, textarea:focus, select:focus { border-color: ${COLORS.sienna} !important; }
-      `}</style>
-
+        <div className="min-h-screen bg-[#F2EAE0] text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-900">
             <VendorNavbar />
 
-            <div style={{ padding: "2.5rem 3rem 5rem", maxWidth: 560 }}>
-                <Link href="/vendor/products" className="flex items-center" style={{ gap: 6, fontSize: 13, color: COLORS.sage, textDecoration: "none", width: "fit-content", marginBottom: 24 }}>
-                    <ChevronLeft size={15} /> Back to products
+            <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-6xl mx-auto px-6 lg:px-12 py-10"
+            >
+                {/* Back button */}
+                <Link
+                    href="/vendor/products"
+                    className="inline-flex items-center space-x-1.5 text-xs font-semibold uppercase tracking-wider text-stone-500 hover:text-stone-800 transition-colors mb-6"
+                >
+                    <ChevronLeft size={14} />
+                    <span>Back to products</span>
                 </Link>
 
-                <h1 className="voice" style={{ fontSize: 30, fontWeight: 500, marginBottom: 28 }}>Add a new product</h1>
+                <h1 className="font-serif text-3xl font-normal text-stone-900 mb-8">
+                    Add New Product
+                </h1>
 
-                <form onSubmit={submit} className="flex flex-col" style={{ gap: 20 }}>
-                    <div>
-                        <label style={labelStyle}>Product name</label>
-                        <input
-                            value={data.name}
-                            onChange={(e) => setData("name", e.target.value)}
-                            style={inputStyle}
-                            placeholder="e.g. Hand-thrown stoneware vase"
-                        />
-                        {errors.name && <p style={{ color: COLORS.sienna, fontSize: 12.5, marginTop: 4 }}>{errors.name}</p>}
-                    </div>
+                <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
-                    <div>
-                        <label style={labelStyle}>Category</label>
-                        <select value={data.category_id} onChange={(e) => setData("category_id", e.target.value)} style={inputStyle}>
-                            <option value="">Select a category</option>
-                            {categories.map((c) => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                        </select>
-                        {errors.category_id && <p style={{ color: COLORS.sienna, fontSize: 12.5, marginTop: 4 }}>{errors.category_id}</p>}
-                    </div>
+                    {/* LEFT: Product Details (2/3) */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-5">
+                            <h3 className="font-serif text-lg font-normal text-stone-900 border-b border-stone-100 pb-3">
+                                Product Information
+                            </h3>
 
-                    <div>
-                        <label style={labelStyle}>Description</label>
-                        <textarea
-                            value={data.description}
-                            onChange={(e) => setData("description", e.target.value)}
-                            style={{ ...inputStyle, minHeight: 110, resize: "vertical" }}
-                            placeholder="Describe the piece, materials, and craft process..."
-                        />
-                    </div>
+                            {/* Name */}
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">
+                                    Product Name <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    value={data.name}
+                                    onChange={(e) => setData("name", e.target.value)}
+                                    placeholder="e.g. Hand-thrown Stoneware Vase"
+                                    className="block w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-all text-sm"
+                                    required
+                                />
+                                {errors.name && <p className="text-xs text-red-600 mt-1.5">{errors.name}</p>}
+                            </div>
 
-                    <div className="grid grid-cols-2" style={{ gap: 16 }}>
-                        <div>
-                            <label style={labelStyle}>Price ($)</label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={data.price}
-                                onChange={(e) => setData("price", e.target.value)}
-                                style={inputStyle}
-                                placeholder="86.00"
-                            />
-                            {errors.price && <p style={{ color: COLORS.sienna, fontSize: 12.5, marginTop: 4 }}>{errors.price}</p>}
+                            {/* Category */}
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">
+                                    Category <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={data.category_id}
+                                        onChange={(e) => setData("category_id", e.target.value)}
+                                        className="block w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-all text-sm appearance-none cursor-pointer"
+                                        required
+                                    >
+                                        <option value="">Select a category</option>
+                                        {categories.map((c) => (
+                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-stone-400">
+                                        <Tag size={15} />
+                                    </div>
+                                </div>
+                                {errors.category_id && <p className="text-xs text-red-600 mt-1.5">{errors.category_id}</p>}
+                            </div>
+
+                            {/* Description */}
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">
+                                    Description
+                                </label>
+                                <textarea
+                                    value={data.description}
+                                    onChange={(e) => setData("description", e.target.value)}
+                                    rows={6}
+                                    placeholder="Describe the piece, materials, dimensions, and the craft process behind it..."
+                                    className="block w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-all resize-none text-sm"
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label style={labelStyle}>Stock quantity</label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={data.stock}
-                                onChange={(e) => setData("stock", e.target.value)}
-                                style={inputStyle}
-                                placeholder="12"
-                            />
-                            {errors.stock && <p style={{ color: COLORS.sienna, fontSize: 12.5, marginTop: 4 }}>{errors.stock}</p>}
-                        </div>
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Product photo</label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setData("image", e.target.files[0])}
-                            style={{ fontSize: 14 }}
-                        />
-                        {errors.image && <p style={{ color: COLORS.sienna, fontSize: 12.5, marginTop: 4 }}>{errors.image}</p>}
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="btn-primary"
-                        style={{ background: COLORS.sienna, color: COLORS.bgLight, border: "none", padding: "13px 0", fontSize: 14, fontWeight: 500, borderRadius: 2, marginTop: 8 }}
-                    >
-                        {processing ? "Saving..." : "Add product"}
-                    </button>
+                    {/* RIGHT: Price, Stock, Image, Submit (1/3) */}
+                    <div className="space-y-6">
+
+                        {/* Pricing & Stock */}
+                        <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
+                            <h3 className="font-serif text-lg font-normal text-stone-900 border-b border-stone-100 pb-3">
+                                Pricing & Stock
+                            </h3>
+
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">
+                                    Price ($) <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
+                                        <DollarSign size={15} />
+                                    </div>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        value={data.price}
+                                        onChange={(e) => setData("price", e.target.value)}
+                                        placeholder="0.00"
+                                        className="block w-full pl-9 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-all text-sm"
+                                        required
+                                    />
+                                </div>
+                                {errors.price && <p className="text-xs text-red-600 mt-1.5">{errors.price}</p>}
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5">
+                                    Stock Quantity <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
+                                        <Package size={15} />
+                                    </div>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={data.stock}
+                                        onChange={(e) => setData("stock", e.target.value)}
+                                        placeholder="0"
+                                        className="block w-full pl-9 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-all text-sm"
+                                        required
+                                    />
+                                </div>
+                                {errors.stock && <p className="text-xs text-red-600 mt-1.5">{errors.stock}</p>}
+                            </div>
+                        </div>
+
+                        {/* Product Image */}
+                        <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm space-y-4">
+                            <h3 className="font-serif text-lg font-normal text-stone-900 border-b border-stone-100 pb-3">
+                                Product Image
+                            </h3>
+
+                            {imagePreview ? (
+                                <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-stone-200 group bg-stone-50">
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-0 bg-stone-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+                                        <label className="bg-white hover:bg-stone-100 text-stone-800 text-xs font-semibold py-2 px-3 rounded-lg cursor-pointer transition-all flex items-center space-x-1.5 shadow-md">
+                                            <Upload size={13} />
+                                            <span>Change Photo</span>
+                                            <input type="file" accept="image/*,.heic,.heif,.avif,.webp,.svg,.png,.jpg,.jpeg,.gif,.bmp,.tiff" onChange={handleImageChange} className="hidden" />
+                                        </label>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="w-full aspect-square rounded-xl border-2 border-dashed border-stone-200 hover:border-stone-400 transition-colors flex flex-col items-center justify-center text-center p-4 bg-stone-50">
+                                    <ImageIcon size={32} className="text-stone-300 mb-2.5" />
+                                    <p className="text-xs text-stone-500 font-medium">No image selected</p>
+                                    <label className="mt-3 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold py-2 px-3.5 rounded-lg cursor-pointer transition-colors shadow-sm inline-flex items-center space-x-1.5">
+                                        <Upload size={12} />
+                                        <span>Upload Photo</span>
+                                        <input type="file" accept="image/*,.heic,.heif,.avif,.webp,.svg,.png,.jpg,.jpeg,.gif,.bmp,.tiff" onChange={handleImageChange} className="hidden" />
+                                    </label>
+                                </div>
+                            )}
+                            {errors.image && <p className="text-xs text-red-600 mt-1">{errors.image}</p>}
+                        </div>
+
+                        {/* Submit */}
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-sm font-semibold text-white bg-stone-900 hover:bg-stone-800 active:bg-stone-950 focus:outline-none transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer"
+                        >
+                            <Plus size={16} />
+                            <span>{processing ? "Adding Product..." : "Add Product"}</span>
+                        </button>
+                    </div>
                 </form>
-            </div>
+            </motion.div>
         </div>
     );
 }

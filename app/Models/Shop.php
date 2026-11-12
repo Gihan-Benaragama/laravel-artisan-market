@@ -20,4 +20,9 @@ class Shop extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class)->whereNotNull('shop_id');
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\VendorApprovalController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProfileController;
@@ -17,6 +18,10 @@ use App\Http\Controllers\Vendor\PayoutController as VendorPayoutController;
 use App\Http\Controllers\Admin\PayoutController as AdminPayoutController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+    Route::patch('/orders/{order}/status', [AdminDashboardController::class, 'updateOrderStatus'])->name('orders.update');
+    Route::patch('/sub-orders/{subOrder}/status', [AdminDashboardController::class, 'updateSubOrderStatus'])->name('suborders.update');
     Route::get('/vendors', [VendorApprovalController::class, 'index'])->name('vendors.index');
     Route::patch('/vendors/{vendor}', [VendorApprovalController::class, 'update'])->name('vendors.update');
     Route::get('/payouts', [AdminPayoutController::class, 'index'])->name('payouts.index');
@@ -28,10 +33,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::post('/reviews/shop', [ReviewController::class, 'storeShopReview'])->name('reviews.shop.store');
 });
 
 Route::middleware(['auth', 'vendor'])->prefix('vendor')->name('vendor.')->group(function () {
     Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
+    Route::patch('/sub-orders/{subOrder}/status', [VendorDashboardController::class, 'updateSubOrderStatus'])->name('suborders.update');
     Route::post('/shop', [VendorShopController::class, 'store'])->name('shop.store');
     Route::get('/shop/edit', [VendorShopController::class, 'edit'])->name('shop.edit');
     Route::post('/shop/edit', [VendorShopController::class, 'update'])->name('shop.update');
@@ -75,5 +82,19 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Storage Fallback for environments where symlinks are not created
+Route::get('/storage/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+    $mime = mime_content_type($filePath) ?: 'application/octet-stream';
+    return response(file_get_contents($filePath), 200, [
+        'Content-Type' => $mime,
+        'Content-Length' => filesize($filePath),
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*');
 
 require __DIR__.'/auth.php';

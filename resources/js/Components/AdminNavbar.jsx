@@ -1,20 +1,23 @@
 import React from "react";
 import { Link, usePage, router } from "@inertiajs/react";
+import { ShieldCheck, LogOut, ExternalLink, User } from "lucide-react";
 
 const COLORS = {
-    bg: "#1C1815",
-    bgLight: "#F2EAE0",
-    sienna: "#B5563C",
+    bg: "#12100E",
+    sienna: "#C86D51",
     sage: "#7C8471",
-    brass: "#A88A5B",
+    brass: "#D4AF37",
     ink: "#0F0D0B",
+    cream: "#F8F5F0",
 };
 
 export default function AdminNavbar() {
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const user = props?.auth?.user;
 
     const isActive = (path, exact = false) => {
         if (exact) return url === path;
+        if (path === "/admin") return url === "/admin" || url === "/admin/dashboard";
         return url.startsWith(path);
     };
 
@@ -23,15 +26,13 @@ export default function AdminNavbar() {
         return (
             <Link
                 href={href}
+                className="relative text-sm tracking-wide font-medium transition-all duration-200"
                 style={{
-                    color: active ? COLORS.brass : "#ffffff",
+                    color: active ? COLORS.brass : "rgba(255, 255, 255, 0.75)",
                     fontWeight: active ? 600 : 400,
-                    opacity: active ? 1 : 0.8,
                     textDecoration: "none",
-                    fontSize: 14,
                     paddingBottom: 4,
                     borderBottom: active ? `2px solid ${COLORS.brass}` : "2px solid transparent",
-                    transition: "color 0.2s, border-color 0.2s, opacity 0.2s",
                 }}
             >
                 {label}
@@ -46,68 +47,163 @@ export default function AdminNavbar() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "1.25rem 3rem",
+                padding: "1.1rem 3rem",
                 background: COLORS.bg,
                 color: "#ffffff",
                 position: "sticky",
                 top: 0,
                 zIndex: 100,
                 boxSizing: "border-box",
-                borderBottom: "1px solid rgba(242,234,224,0.08)",
+                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                backdropFilter: "blur(20px)",
             }}
         >
-            {/* LOGO */}
-            <Link
-                href="/"
-                style={{
-                    fontFamily: "'Fraunces', serif",
-                    fontSize: 22,
-                    fontWeight: 500,
-                    textDecoration: "none",
-                    color: "#ffffff",
-                    letterSpacing: "-0.01em",
-                }}
-            >
-                Aterlier
-                <span
+            {/* BRAND LOGO */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <Link
+                    href="/admin"
                     style={{
-                        marginLeft: 10,
-                        fontSize: 11,
-                        fontFamily: "'Inter', sans-serif",
-                        letterSpacing: "0.12em",
-                        textTransform: "uppercase",
-                        color: COLORS.sienna,
-                        fontWeight: 600,
-                        verticalAlign: "middle",
+                        fontFamily: "'Fraunces', serif",
+                        fontSize: 22,
+                        fontWeight: 500,
+                        textDecoration: "none",
+                        color: "#ffffff",
+                        letterSpacing: "-0.01em",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
                     }}
                 >
-                    Admin
-                </span>
-            </Link>
+                    <div
+                        style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: "50%",
+                            background: `linear-gradient(135deg, ${COLORS.sienna}, ${COLORS.brass})`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#fff",
+                        }}
+                    >
+                        <ShieldCheck size={18} />
+                    </div>
+                    <span>Atelier</span>
+                    <span
+                        style={{
+                            fontSize: 10,
+                            letterSpacing: "0.16em",
+                            textTransform: "uppercase",
+                            color: COLORS.brass,
+                            fontWeight: 700,
+                            background: "rgba(212,175,55,0.12)",
+                            padding: "3px 8px",
+                            borderRadius: 4,
+                            border: "1px solid rgba(212,175,55,0.25)",
+                        }}
+                    >
+                        Admin
+                    </span>
+                </Link>
+            </div>
 
-            {/* ADMIN LINKS */}
-            <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-                {navLink("/", "Home", true)}
+            {/* ADMIN NAV LINKS */}
+            <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+                {navLink("/admin", "Overview")}
                 {navLink("/admin/vendors", "Vendor Approvals")}
                 {navLink("/admin/payouts", "Payouts")}
-                {navLink("/dashboard", "My account")}
-                <button
-                    onClick={() => router.post("/logout")}
+                
+                <span style={{ width: 1, height: 18, background: "rgba(255,255,255,0.15)" }} />
+
+                <Link
+                    href="/shop"
+                    target="_blank"
                     style={{
-                        background: "transparent",
-                        border: "none",
-                        color: "#ffffff",
-                        opacity: 0.8,
-                        cursor: "pointer",
-                        fontSize: 14,
-                        padding: 0,
-                        transition: "opacity 0.2s",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 5,
+                        color: "rgba(255, 255, 255, 0.65)",
+                        fontSize: 13,
+                        textDecoration: "none",
                     }}
-                    onMouseEnter={(e) => (e.target.style.opacity = 1)}
-                    onMouseLeave={(e) => (e.target.style.opacity = 0.8)}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255, 255, 255, 0.65)")}
                 >
-                    Log out
-                </button>
+                    <span>Storefront</span>
+                    <ExternalLink size={12} />
+                </Link>
+
+                <Link
+                    href="/dashboard?view=customer"
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 5,
+                        color: "rgba(255, 255, 255, 0.65)",
+                        fontSize: 13,
+                        textDecoration: "none",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255, 255, 255, 0.65)")}
+                >
+                    <User size={13} />
+                    <span>Customer View</span>
+                </Link>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: 8 }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            padding: "4px 12px",
+                            borderRadius: 20,
+                            background: "rgba(255,255,255,0.06)",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: "50%",
+                                background: "#10B981",
+                            }}
+                        />
+                        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
+                            {user?.name || "Admin"}
+                        </span>
+                    </div>
+
+                    <button
+                        onClick={() => router.post("/logout")}
+                        title="Log Out"
+                        style={{
+                            background: "transparent",
+                            border: "none",
+                            color: "rgba(255,255,255,0.6)",
+                            cursor: "pointer",
+                            fontSize: 13,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 5,
+                            padding: "6px 10px",
+                            borderRadius: 6,
+                            transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.color = "#f87171";
+                            e.currentTarget.style.background = "rgba(239,68,68,0.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.color = "rgba(255,255,255,0.6)";
+                            e.currentTarget.style.background = "transparent";
+                        }}
+                    >
+                        <LogOut size={14} />
+                        <span>Logout</span>
+                    </button>
+                </div>
             </div>
         </nav>
     );

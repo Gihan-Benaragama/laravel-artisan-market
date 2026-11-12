@@ -88,6 +88,9 @@ class ShopController extends Controller
                 Storage::disk('public')->delete($shop->banner);
             }
             $validated['banner'] = $request->file('banner')->store('shops/banners', 'public');
+            if (is_dir(public_path('storage/shops/banners'))) {
+                @copy(storage_path('app/public/' . $validated['banner']), public_path('storage/' . $validated['banner']));
+            }
         }
 
         // Handle logo upload
@@ -96,6 +99,10 @@ class ShopController extends Controller
                 Storage::disk('public')->delete($shop->logo);
             }
             $validated['logo'] = $request->file('logo')->store('shops/logos', 'public');
+            if (!is_dir(public_path('storage/shops/logos'))) {
+                @mkdir(public_path('storage/shops/logos'), 0777, true);
+            }
+            @copy(storage_path('app/public/' . $validated['logo']), public_path('storage/' . $validated['logo']));
         }
 
         $shop->update($validated);

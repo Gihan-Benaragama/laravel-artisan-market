@@ -35,8 +35,8 @@ export default function AdminPayouts({ payouts = [] }) {
             <AdminNavbar />
 
             <div style={{ padding: "2.5rem 3rem 1.5rem" }}>
-                <Link href="/dashboard" className="flex items-center" style={{ gap: 6, fontSize: 13, color: COLORS.sage, textDecoration: "none", width: "fit-content", marginBottom: 20 }}>
-                    <ArrowLeft size={15} /> Back to dashboard
+                <Link href="/admin" className="flex items-center" style={{ gap: 6, fontSize: 13, color: COLORS.sage, textDecoration: "none", width: "fit-content", marginBottom: 20 }}>
+                    <ArrowLeft size={15} /> Back to Admin Dashboard
                 </Link>
                 <p style={{ fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase", color: COLORS.brass, marginBottom: 10 }}>
                     Admin panel

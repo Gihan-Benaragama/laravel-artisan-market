@@ -49,6 +49,12 @@ class ProductController extends Controller
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('products', 'public');
+            if (is_dir(public_path('storage/products'))) {
+                @copy(storage_path('app/public/' . $validated['image']), public_path('storage/' . $validated['image']));
+            }
+            if (is_dir(public_path('storage/products'))) {
+                @copy(storage_path('app/public/' . $validated['image']), public_path('storage/' . $validated['image']));
+            }
         }
 
         $validated['shop_id'] = $this->vendorShop()->id;
@@ -92,6 +98,9 @@ class ProductController extends Controller
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image);
             }
             $validated['image'] = $request->file('image')->store('products', 'public');
+            if (is_dir(public_path('storage/products'))) {
+                @copy(storage_path('app/public/' . $validated['image']), public_path('storage/' . $validated['image']));
+            }
         }
 
         $product->update($validated);

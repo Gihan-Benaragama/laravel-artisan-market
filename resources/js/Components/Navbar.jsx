@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, usePage, router } from "@inertiajs/react";
-import { ShoppingBag, Sparkles, User as UserIcon, LogOut, Store } from "lucide-react";
+import { ShoppingBag, Sparkles, User as UserIcon, LogOut, Store, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import CartDrawer from "./CartDrawer";
 
@@ -96,22 +96,41 @@ export default function Navbar() {
 
                     {user ? (
                         <div className="flex items-center gap-6">
-                            <Link
-                                href="/dashboard"
-                                className={`relative text-sm tracking-wide font-medium transition-colors duration-300 flex items-center gap-1.5 ${
-                                    isActive("/dashboard") ? "text-[#D4AF37]" : "text-white/80 hover:text-white"
-                                }`}
-                            >
-                                <Store size={15} />
-                                Dashboard
-                                {isActive("/dashboard") && (
-                                    <motion.div
-                                        layoutId="navIndicator"
-                                        className="absolute -bottom-1 left-0 right-0 h-[2px] bg-[#D4AF37] rounded-full"
-                                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                                    />
-                                )}
-                            </Link>
+                            {user.is_admin ? (
+                                <Link
+                                    href="/admin"
+                                    className={`relative text-sm tracking-wide font-medium transition-colors duration-300 flex items-center gap-1.5 ${
+                                        url.startsWith("/admin") ? "text-[#D4AF37]" : "text-white/90 hover:text-white"
+                                    }`}
+                                >
+                                    <ShieldCheck size={15} className="text-[#D4AF37]" />
+                                    Admin Panel
+                                    {url.startsWith("/admin") && (
+                                        <motion.div
+                                            layoutId="navIndicator"
+                                            className="absolute -bottom-1 left-0 right-0 h-[2px] bg-[#D4AF37] rounded-full"
+                                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                        />
+                                    )}
+                                </Link>
+                            ) : (
+                                <Link
+                                    href="/dashboard"
+                                    className={`relative text-sm tracking-wide font-medium transition-colors duration-300 flex items-center gap-1.5 ${
+                                        isActive("/dashboard") ? "text-[#D4AF37]" : "text-white/80 hover:text-white"
+                                    }`}
+                                >
+                                    <Store size={15} />
+                                    Dashboard
+                                    {isActive("/dashboard") && (
+                                        <motion.div
+                                            layoutId="navIndicator"
+                                            className="absolute -bottom-1 left-0 right-0 h-[2px] bg-[#D4AF37] rounded-full"
+                                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                        />
+                                    )}
+                                </Link>
+                            )}
 
                             <motion.button
                                 whileHover={{ scale: 1.05 }}

@@ -57,29 +57,66 @@ class ShopController extends Controller
 
     public function studioShow(string $slugOrId)
     {
-        $shop = \App\Models\Shop::with(['vendor.user', 'products.category'])
+        $shop = \App\Models\Shop::with(['vendor.user', 'products.category', 'reviews.user'])
             ->where('slug', $slugOrId)
             ->orWhere('id', $slugOrId)
             ->firstOrFail();
 
+        // Which of the customer's delivered sub-orders are from this shop's vendor?
+        $reviewableSubOrders = collect();
+        $existingReviews = collect();
+
+        if (auth()->check()) {
+            $reviewableSubOrders = \App\Models\SubOrder::where('vendor_id', $shop->vendor_id)
+                ->whereHas('order', fn ($q) => $q->where('user_id', auth()->id()))
+                ->with('order')
+                ->get();
+
+            $existingReviews = \App\Models\Review::where('user_id', auth()->id())
+                ->where('shop_id', $shop->id)
+                ->pluck('sub_order_id')
+                ->toArray();
+        }
+
         return Inertia::render('Shop/StudioShow', [
-            'shop' => $shop,
-            'products' => $shop->products,
+            'shop'                 => $shop,
+            'products'             => $shop->products,
+            'reviewableSubOrders'  => $reviewableSubOrders,
+            'existingReviews'      => $existingReviews,
         ]);
     }
 
     public function vendorShow($vendorId)
     {
-        $vendor = \App\Models\Vendor::with(['shop.products.category', 'user'])
+        $vendor = \App\Models\Vendor::with(['shop.products.category', 'shop.reviews.user', 'user'])
             ->findOrFail($vendorId);
 
         if (!$vendor->shop) {
             abort(404, 'Studio not found');
         }
 
+        $shop = $vendor->shop;
+
+        $reviewableSubOrders = collect();
+        $existingReviews = collect();
+
+        if (auth()->check()) {
+            $reviewableSubOrders = \App\Models\SubOrder::where('vendor_id', $vendor->id)
+                ->whereHas('order', fn ($q) => $q->where('user_id', auth()->id()))
+                ->with('order')
+                ->get();
+
+            $existingReviews = \App\Models\Review::where('user_id', auth()->id())
+                ->where('shop_id', $shop->id)
+                ->pluck('sub_order_id')
+                ->toArray();
+        }
+
         return Inertia::render('Shop/StudioShow', [
-            'shop' => $vendor->shop,
-            'products' => $vendor->shop->products,
+            'shop'                => $shop,
+            'products'            => $shop->products,
+            'reviewableSubOrders' => $reviewableSubOrders,
+            'existingReviews'     => $existingReviews,
         ]);
     }
 }

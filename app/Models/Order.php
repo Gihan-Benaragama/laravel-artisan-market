@@ -16,6 +16,11 @@ class Order extends Model
     'shipping_postal_code',
 ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function subOrders()
     {
         return $this->hasMany(SubOrder::class);

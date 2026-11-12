@@ -16,6 +16,7 @@ use App\Http\Controllers\Vendor\ShopController as VendorShopController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Vendor\PayoutController as VendorPayoutController;
 use App\Http\Controllers\Admin\PayoutController as AdminPayoutController;
+use App\Http\Controllers\Auth\GoogleController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -70,6 +71,10 @@ Route::get('/vendor/{vendor}', [ShopController::class, 'vendorShow'])->name('ven
 
 // Home
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Google OAuth — server-side Socialite redirect flow
+Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
 
 // Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])
